@@ -299,7 +299,7 @@
     <div class="app-header">
         <div>
             <div class="app-title">Sync_AntiFreeze</div>
-            <div class="app-sub">Session Synchronisation · University of Waterloo</div>
+            <div class="app-sub">Clinical Session Synchronisation · University of Waterloo</div>
         </div>
         <div class="header-right">
             <div id="realTimeClock">--:--:--</div>
@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             state:currentState.toUpperCase(),
             visit:`Visit ${currentVisit}`, event:'Start',
             notes:notesInput.value.trim(), timestamp:nowISO() });
-        notesInput.value = '';
+        // Keep the notes field open so the user can add/edit notes during the trial (captured on Stop)
         renderLog();
 
         const dur = parseInt(selectedEl.dataset.dur||0);
@@ -713,7 +713,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         logData.push({ trial:currentTrialName, shortLabel: selectedEl ? (selectedEl.dataset.short || currentTrialName) : currentTrialName,
             state:currentState.toUpperCase(),
-            visit:`Visit ${currentVisit}`, event:'Stop', notes:'', timestamp:nowISO() });
+            visit:`Visit ${currentVisit}`, event:'Stop', notes: notesInput.value.trim(), timestamp:nowISO() });
+        notesInput.value = '';
         renderLog();
 
         // Auto-advance (select only, don't start)
@@ -757,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stopBtn.disabled  = !isTiming;
         trialList.style.opacity = isTiming?'.5':'1';
         trialList.style.pointerEvents = isTiming?'none':'';
-        notesInput.disabled = isTiming;
+        notesInput.disabled = false; // always editable — notes captured on Stop
         editToggle.disabled = isTiming;
         stateSelect.disabled = isTiming;
         visitSelect.disabled = isTiming;
