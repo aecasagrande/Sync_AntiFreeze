@@ -297,7 +297,6 @@
 <body>
 <div class="container">
 
-    <!-- Header -->
     <div class="app-header">
         <div>
             <div class="app-title">Sync_AntiFreeze</div>
@@ -309,7 +308,6 @@
         </div>
     </div>
 
-    <!-- Session Config -->
     <div class="card">
         <div class="card-title">Session Configuration</div>
         <div class="config-grid">
@@ -353,7 +351,6 @@
         </div>
     </div>
 
-    <!-- Protocol -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem;flex-wrap:wrap;gap:.5rem;">
             <div class="card-title" style="margin:0">Protocol Steps</div>
@@ -392,7 +389,6 @@
         </div>
     </div>
 
-    <!-- Log -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;flex-wrap:wrap;gap:.5rem;">
             <div class="card-title" style="margin:0">Event Log</div>
@@ -422,7 +418,6 @@
 
 </div>
 
-<!-- Discard Modal -->
 <div id="discardModal" class="modal-ov hidden">
     <div id="discardModalContent" class="modal-box">
         <div class="m-title">Discard Last Trial?</div>
@@ -435,7 +430,6 @@
     </div>
 </div>
 
-<!-- Reset Modal -->
 <div id="confirmationModal" class="modal-ov hidden">
     <div id="modalContent" class="modal-box">
         <div class="m-title">Reset Entire Log?</div>
@@ -760,7 +754,6 @@ document.addEventListener('DOMContentLoaded', () => {
         stopBtn.disabled  = !isTiming;
         trialList.style.opacity = isTiming?'.5':'1';
         trialList.style.pointerEvents = isTiming?'none':'';
-        const notesLbl = document.querySelector('[for="notesInput"], .field-lbl');
         // Update notes label hint dynamically in btnStates
         const notesLabel = notesInput.previousElementSibling;
         if (notesLabel && notesLabel.classList.contains('field-lbl')) {
@@ -888,6 +881,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target===ov) closeModal(ov, ov.querySelector('.modal-box'));
         });
     });
+
+    // Live-update the notes for the active 'Start' event
+    notesInput.addEventListener('input', (e) => {
+        if (isTiming && logData.length > 0) {
+            // 1. Update the underlying data array
+            const lastEntry = logData[logData.length - 1];
+            if (lastEntry.event === 'Start') {
+                lastEntry.notes = e.target.value;
+                
+                // 2. Live-update the table cell without redrawing the whole table 
+                // (to prevent flickering or losing scroll position)
+                const rows = logBody.querySelectorAll('tr');
+                if (rows.length > 0) {
+                    const lastRow = rows[rows.length - 1];
+                    const notesCell = lastRow.children[4]; // The 5th column is Notes
+                    notesCell.textContent = e.target.value;
+                }
+            }
+        }
+    });
+
 });
 </script>
 </body>
