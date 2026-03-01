@@ -116,6 +116,8 @@
             border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,108,224,.1);
         }
         input:disabled, select:disabled, textarea:disabled { opacity: .4; cursor: not-allowed; }
+        /* Notes field is always interactive */
+        #notesInput { opacity: 1 !important; pointer-events: auto !important; cursor: text !important; }
 
         .bids-box {
             margin-top: .85rem;
@@ -758,7 +760,12 @@ document.addEventListener('DOMContentLoaded', () => {
         stopBtn.disabled  = !isTiming;
         trialList.style.opacity = isTiming?'.5':'1';
         trialList.style.pointerEvents = isTiming?'none':'';
-        notesInput.disabled = false; // always editable — notes captured on Stop
+        const notesLbl = document.querySelector('[for="notesInput"], .field-lbl');
+        // Update notes label hint dynamically in btnStates
+        const notesLabel = notesInput.previousElementSibling;
+        if (notesLabel && notesLabel.classList.contains('field-lbl')) {
+            notesLabel.textContent = isTiming ? 'Notes (saved on Stop)' : 'Notes (optional)';
+        }
         editToggle.disabled = isTiming;
         stateSelect.disabled = isTiming;
         visitSelect.disabled = isTiming;
