@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync_AntiFreeze</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f0f4f8;
+            --white: #ffffff;
+            --border: #dde3ec;
+            --border-strong: #c4cdd9;
+            --text: #1c2b3a;
+            --text-mid: #445668;
+            --text-muted: #8898aa;
+            --blue: #1d6ce0;
+            --blue-lt: #eef4ff;
+            --blue-bd: #b8d0ff;
+            --green: #15803d;
+            --green-lt: #f0fdf4;
+            --green-bd: #86efac;
+            --red: #c8222a;
+            --red-lt: #fff2f2;
+            --red-bd: #fca5a5;
+            --orange: #c2500a;
+            --orange-lt: #fff8f0;
+            --orange-bd: #fdba74;
+            --purple: #6d28d9;
+            --purple-lt: #f6f3ff;
+            --purple-bd: #c4b5fd;
+            --teal: #0e7490;
+            --teal-lt: #ecfeff;
+            --teal-bd: #99f6e4;
+            --r: 10px;
+            --r-sm: 6px;
+            --sh: 0 1px 3px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05);
+            --sh-lg: 0 8px 32px rgba(0,0,0,.14);
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+        .container { max-width: 840px; margin: 0 auto; }
+
+        /* ── Header ── */
+        .app-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 1.25rem; flex-wrap: wrap; gap: .75rem;
+        }
+        .app-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.5rem; font-weight: 600;
+            color: var(--blue); letter-spacing: -.02em;
+        }
+        .app-sub {
+            font-size: .7rem; color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: .04em; margin-top: .1rem;
+        }
+        .header-right {
+            display: flex; flex-direction: column; align-items: flex-end; gap: .3rem;
+        }
+        #realTimeClock {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.05rem; font-weight: 500; color: var(--text); letter-spacing: .05em;
+        }
+        .bids-pill {
+            font-family: 'IBM Plex Mono', monospace; font-size: .65rem;
+            background: var(--blue-lt); color: var(--blue);
+            border: 1px solid var(--blue-bd); border-radius: 20px;
+            padding: .18rem .6rem; letter-spacing: .02em; max-width: 340px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* ── Card ── */
+        .card {
+            background: var(--white); border: 1px solid var(--border);
+            border-radius: var(--r); box-shadow: var(--sh);
+            padding: 1.2rem 1.4rem; margin-bottom: 1rem;
+        }
+        .card-title {
+            font-size: .62rem; font-weight: 600; letter-spacing: .1em;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: .85rem;
+        }
+
+        /* ── Config grid ── */
+        .config-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1.3fr 1fr; gap: .65rem;
+        }
+        @media(max-width:600px){ .config-grid { grid-template-columns: 1fr 1fr; } }
+        .field-grp { display: flex; flex-direction: column; gap: .28rem; }
+        .field-lbl {
+            font-size: .62rem; font-weight: 600; letter-spacing: .08em;
+            text-transform: uppercase; color: var(--text-muted);
+        }
+
+        input[type=text], select, textarea {
+            font-family: 'IBM Plex Sans', sans-serif; font-size: .85rem;
+            color: var(--text); background: var(--white);
+            border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+            padding: .42rem .7rem; outline: none; width: 100%;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,108,224,.1);
+        }
+        input:disabled, select:disabled, textarea:disabled { opacity: .4; cursor: not-allowed; }
+
+        .bids-box {
+            margin-top: .85rem;
+        }
+        .bids-box-lbl {
+            font-size: .6rem; font-weight: 600; letter-spacing: .08em;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: .25rem;
+        }
+        .bids-box-val {
+            font-family: 'IBM Plex Mono', monospace; font-size: .78rem;
+            font-weight: 500; color: var(--blue);
+            background: var(--blue-lt); border: 1px solid var(--blue-bd);
+            border-radius: var(--r-sm); padding: .5rem .85rem; word-break: break-all;
+        }
+
+        /* chips */
+        .chips-row { display: flex; gap: .45rem; margin-top: .75rem; flex-wrap: wrap; align-items: center; }
+        .chip {
+            display: inline-flex; align-items: center; gap: .28rem;
+            padding: .18rem .55rem; border-radius: 20px;
+            font-family: 'IBM Plex Mono', monospace; font-size: .66rem; font-weight: 600;
+            letter-spacing: .03em;
+        }
+        .chip-off  { background: var(--red-lt);    color: var(--red);    border: 1px solid var(--red-bd); }
+        .chip-on   { background: var(--green-lt);  color: var(--green);  border: 1px solid var(--green-bd); }
+        .chip-vis  { background: var(--purple-lt); color: var(--purple); border: 1px solid var(--purple-bd); }
+        .chip-sub  { background: #f4f6f9; color: var(--text-muted); border: 1px solid var(--border); }
+        .chip-dot  { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+        /* ── Active display ── */
+        #activeSelectionDisplay {
+            border: 2px solid var(--border); border-radius: var(--r);
+            padding: .85rem 1rem; text-align: center;
+            margin-bottom: .7rem; transition: border-color .2s, background .2s;
+        }
+        #activeSelectionDisplay.timer-active {
+            border-color: var(--red); background: var(--red-lt);
+            animation: pulseBd 1.6s ease-in-out infinite;
+        }
+        @keyframes pulseBd {
+            0%,100% { border-color: var(--red); }
+            50%      { border-color: #fca5a5;   }
+        }
+        #selectionHeader {
+            font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
+            color: var(--text-muted); font-weight: 600; display: block; margin-bottom: .25rem;
+        }
+        #activeSelectionText {
+            font-family: 'IBM Plex Mono', monospace; font-size: .88rem;
+            font-weight: 600; color: var(--text); word-break: break-all;
+        }
+        #countdownDisplay {
+            font-family: 'IBM Plex Mono', monospace; font-size: 2.3rem;
+            font-weight: 600; color: var(--red); margin-top: .3rem; letter-spacing: .05em;
+        }
+
+        /* ── Trial list ── */
+        #trialList {
+            list-style: none; border: 1px solid var(--border);
+            border-radius: var(--r-sm); max-height: 256px; overflow-y: auto; background: #fafbfd;
+        }
+        #trialList::-webkit-scrollbar { width: 6px; }
+        #trialList::-webkit-scrollbar-track { background: #f1f5f9; }
+        #trialList::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+        .trial-item {
+            padding: .44rem .9rem; cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace; font-size: .73rem; color: var(--text-mid);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: .45rem;
+            transition: background .1s; user-select: none;
+        }
+        .trial-item:last-child { border-bottom: none; }
+        .trial-item:hover { background: var(--blue-lt); }
+        .trial-item.selected { background: var(--blue); color: #fff; font-weight: 500; }
+        .trial-item.selected .tdot { background: white; }
+        .trial-item.section-header {
+            background: #f0f4f8; color: var(--text-muted); font-size: .59rem;
+            letter-spacing: .09em; text-transform: uppercase; cursor: default;
+            pointer-events: none; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600;
+            padding: .28rem .9rem;
+        }
+        .tdot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0; }
+        .timed-badge {
+            margin-left: auto; font-size: .58rem;
+            background: var(--orange-lt); color: var(--orange);
+            border: 1px solid var(--orange-bd); border-radius: 10px;
+            padding: .08rem .38rem; font-weight: 600;
+        }
+        .trial-item.selected .timed-badge {
+            background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.4);
+        }
+        .sortable-ghost { opacity: .4; background: var(--blue-lt) !important; }
+
+        /* ── Toggle ── */
+        .tog-wrap { display: flex; align-items: center; gap: .4rem; }
+        .tog-inp { display: none; }
+        .tog-track {
+            width: 35px; height: 18px; background: var(--border-strong);
+            border-radius: 9px; position: relative; cursor: pointer; transition: background .2s;
+        }
+        .tog-inp:checked + .tog-track { background: var(--blue); }
+        .tog-thumb {
+            position: absolute; width: 12px; height: 12px;
+            background: white; border-radius: 50%; top: 3px; left: 3px;
+            transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+        }
+        .tog-inp:checked + .tog-track .tog-thumb { left: 20px; }
+
+        /* ── Buttons ── */
+        .btn {
+            font-family: 'IBM Plex Mono', monospace; font-size: .78rem; font-weight: 500;
+            letter-spacing: .02em; padding: .48rem .95rem;
+            border-radius: var(--r-sm); border: 1px solid transparent;
+            cursor: pointer; transition: all .12s; white-space: nowrap;
+        }
+        .btn:disabled { opacity: .3; cursor: not-allowed; }
+        .btn-start { background: var(--green); color: #fff; font-size: .98rem; padding: .75rem; width: 100%; }
+        .btn-start:hover:not(:disabled) { background: #166534; }
+        .btn-stop  { background: var(--red);   color: #fff; font-size: .98rem; padding: .75rem; width: 100%; }
+        .btn-stop:hover:not(:disabled)  { background: #991b1b; }
+        .btn-blue   { background: var(--blue-lt);   color: var(--blue);   border-color: var(--blue-bd); }
+        .btn-blue:hover:not(:disabled)   { background: #dbeafe; }
+        .btn-red    { background: var(--red-lt);    color: var(--red);    border-color: var(--red-bd); }
+        .btn-red:hover:not(:disabled)    { background: #fee2e2; }
+        .btn-orange { background: var(--orange-lt); color: var(--orange); border-color: var(--orange-bd); }
+        .btn-orange:hover:not(:disabled) { background: #ffedd5; }
+        .btn-gray   { background: #f1f5f9; color: var(--text-mid); border-color: var(--border-strong); }
+        .btn-gray:hover:not(:disabled)   { background: #e2e8f0; }
+        .btn-teal   { background: var(--teal-lt);   color: var(--teal);   border-color: var(--teal-bd); }
+        .btn-teal:hover:not(:disabled)   { background: #ccfbf1; }
+
+        /* ── Log ── */
+        .log-scroll { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--r-sm); }
+        .log-scroll::-webkit-scrollbar { width: 6px; }
+        .log-scroll::-webkit-scrollbar-track { background: #f8fafc; }
+        .log-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            position: sticky; top: 0; z-index: 1; background: #f5f7fb;
+            border-bottom: 1px solid var(--border);
+            font-size: .59rem; font-weight: 600; letter-spacing: .1em;
+            text-transform: uppercase; color: var(--text-muted);
+            padding: .52rem .8rem; text-align: left;
+        }
+        tbody td { font-size: .75rem; padding: .44rem .8rem; border-bottom: 1px solid var(--border); color: var(--text-mid); }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f9fbff; }
+        .ev-start { color: var(--green); font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+        .ev-stop  { color: var(--red);   font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+
+        hr.div { border: none; border-top: 1px solid var(--border); margin: .9rem 0; }
+
+        /* ── Modals ── */
+        .modal-ov {
+            position: fixed; inset: 0; background: rgba(10,18,30,.5);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem; z-index: 200; opacity: 0; transition: opacity .2s;
+        }
+        .modal-ov.hidden { display: none; }
+        .modal-box {
+            background: var(--white); border: 1px solid var(--border);
+            border-radius: var(--r); box-shadow: var(--sh-lg);
+            padding: 1.7rem; width: 100%; max-width: 400px;
+            transform: scale(.95); transition: transform .2s;
+        }
+        .m-title { font-size: 1.05rem; font-weight: 600; margin-bottom: .55rem; }
+        .m-body  { font-size: .85rem; color: var(--text-mid); margin-bottom: 1.2rem; }
+        .m-hi    { font-family: 'IBM Plex Mono', monospace; font-size: .82rem; color: var(--orange); font-weight: 500; margin-bottom: 1.2rem; }
+        .m-acts  { display: flex; justify-content: flex-end; gap: .5rem; }
+
+        .act-row { display: flex; gap: .45rem; flex-wrap: wrap; align-items: center; }
+        .ss-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="app-header">
+        <div>
+            <div class="app-title">Sync_AntiFreeze</div>
+            <div class="app-sub">Clinical Session Synchronisation · University of Waterloo</div>
+        </div>
+        <div class="header-right">
+            <div id="realTimeClock">--:--:--</div>
+            <div id="bidsHeaderPill" class="bids-pill">antifreeze_sub???-??_ses??-???_...</div>
+        </div>
+    </div>
+
+    <!-- Session Config -->
+    <div class="card">
+        <div class="card-title">Session Configuration</div>
+        <div class="config-grid">
+            <div class="field-grp">
+                <div class="field-lbl">Subject ID</div>
+                <input type="text" id="subjectInput" placeholder="e.g. 001" maxlength="6">
+            </div>
+            <div class="field-grp">
+                <div class="field-lbl">Group</div>
+                <select id="groupSelect">
+                    <option value="FR">FR – Freezer</option>
+                    <option value="NF">NF – Non-Freezer</option>
+                </select>
+            </div>
+            <div class="field-grp">
+                <div class="field-lbl">Visit / Session</div>
+                <select id="visitSelect">
+                    <option value="1">Visit 1 (ses01)</option>
+                    <option value="2">Visit 2 (ses02)</option>
+                    <option value="3">Visit 3 (ses03)</option>
+                </select>
+            </div>
+            <div class="field-grp">
+                <div class="field-lbl">Med Status</div>
+                <select id="stateSelect">
+                    <option value="off">OFF State</option>
+                    <option value="on">ON State</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="bids-box">
+            <div class="bids-box-lbl">Active BIDS Prefix</div>
+            <div id="bidsFullPreview" class="bids-box-val">antifreeze_sub???-??_ses??-???</div>
+        </div>
+
+        <div class="chips-row">
+            <span id="stateBadge" class="chip chip-off"><span class="chip-dot" style="background:var(--red)"></span>OFF</span>
+            <span id="visitBadge" class="chip chip-vis">Visit 1 · ses01</span>
+            <span id="subBadge"   class="chip chip-sub">sub: —</span>
+        </div>
+    </div>
+
+    <!-- Protocol -->
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem;flex-wrap:wrap;gap:.5rem;">
+            <div class="card-title" style="margin:0">Protocol Steps</div>
+            <div class="tog-wrap">
+                <span style="font-size:.66rem;color:var(--text-muted)">Lock</span>
+                <label>
+                    <input type="checkbox" id="editModeToggle" class="tog-inp">
+                    <div class="tog-track"><div class="tog-thumb"></div></div>
+                </label>
+                <span style="font-size:.66rem;color:var(--text-muted)">Edit Order</span>
+            </div>
+        </div>
+
+        <div id="activeSelectionDisplay">
+            <span id="selectionHeader">Currently Selected</span>
+            <div id="activeSelectionText" class="mono">—</div>
+            <div id="countdownDisplay" class="hidden"></div>
+        </div>
+
+        <ul id="trialList"></ul>
+
+        <div class="act-row" style="margin-top:.65rem">
+            <input type="text" id="customTagInput" placeholder="Custom step name (BIDS prefix auto-added)..." style="flex:1;min-width:0">
+            <button id="addTagButton"    class="btn btn-blue">+ Add</button>
+            <button id="removeTagButton" class="btn btn-red">Remove</button>
+        </div>
+
+        <hr class="div">
+        <div class="field-lbl" style="margin-bottom:.3rem">Notes (optional)</div>
+        <textarea id="notesInput" rows="2" placeholder="Notes for this start/stop event..."></textarea>
+        <hr class="div">
+
+        <div class="ss-grid">
+            <button id="startButton" class="btn btn-start">▶ START</button>
+            <button id="stopButton"  class="btn btn-stop">■ STOP</button>
+        </div>
+    </div>
+
+    <!-- Log -->
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;flex-wrap:wrap;gap:.5rem;">
+            <div class="card-title" style="margin:0">Event Log</div>
+            <div class="act-row">
+                <button id="discardLastButton" class="btn btn-orange">Discard Last</button>
+                <button id="resetLogButton"    class="btn btn-red">Reset Log</button>
+                <button id="exportButton"      class="btn btn-teal">Export CSV</button>
+            </div>
+        </div>
+        <div class="log-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>BIDS Task ID</th>
+                        <th>State</th>
+                        <th>Visit</th>
+                        <th>Event</th>
+                        <th>Notes</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="logBody"></tbody>
+            </table>
+        </div>
+        <p id="emptyLogMessage" style="text-align:center;color:var(--text-muted);font-size:.78rem;font-family:'IBM Plex Mono',monospace;padding:1.2rem 0">// log is empty</p>
+    </div>
+
+</div>
+
+<!-- Discard Modal -->
+<div id="discardModal" class="modal-ov hidden">
+    <div id="discardModalContent" class="modal-box">
+        <div class="m-title">Discard Last Trial?</div>
+        <div class="m-body">Remove the most recent Start/Stop pair:</div>
+        <div id="discardTrialName" class="m-hi"></div>
+        <div class="m-acts">
+            <button id="cancelDiscardButton"  class="btn btn-gray">Cancel</button>
+            <button id="confirmDiscardButton" class="btn btn-orange">Discard</button>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Modal -->
+<div id="confirmationModal" class="modal-ov hidden">
+    <div id="modalContent" class="modal-box">
+        <div class="m-title">Reset Entire Log?</div>
+        <div class="m-body">This permanently deletes all log entries and cannot be undone.</div>
+        <div class="m-acts">
+            <button id="cancelResetButton"  class="btn btn-gray">Cancel</button>
+            <button id="confirmResetButton" class="btn btn-red">Confirm Reset</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // ── STATE ──────────────────────────────────────────────────────────────
+    let logData       = [];
+    let isTiming      = false;
+    let currentTrialName = '';
+    let currentState  = 'off';
+    let currentVisit  = '1';
+    let currentGroup  = 'FR';
+    let currentSubject= '';
+    let selectedEl    = null;
+    let sortable      = null;
+    let timerInt      = null;
+    let remaining     = 0;
+
+    // ── BIDS HELPERS ───────────────────────────────────────────────────────
+    const padSub = s => s ? s.replace(/\D/g,'').padStart(3,'0').substring(0,6)||'???' : '???';
+
+    function getBidsPrefix() {
+        return `antifreeze_sub${padSub(currentSubject)}-${currentGroup}_ses0${currentVisit}-${currentState}`;
+    }
+
+    function stepDisplayName(step) {
+        const sub = padSub(currentSubject);
+        const grp = currentGroup;
+        const ses = `ses0${currentVisit}`;
+        const med = (step.medFixed) ? step.medFixed : currentState;
+        if (step.noMed) {
+            return `antifreeze_sub${sub}-${grp}_${ses}_${step.label}`;
+        }
+        return `antifreeze_sub${sub}-${grp}_${ses}-${med}_${step.label}`;
+    }
+
+    function updateBidsUI() {
+        const prefix = getBidsPrefix();
+        document.getElementById('bidsFullPreview').textContent = prefix;
+        document.getElementById('bidsHeaderPill').textContent = prefix + '_...';
+
+        const sb = document.getElementById('stateBadge');
+        sb.className = 'chip ' + (currentState==='off'?'chip-off':'chip-on');
+        sb.innerHTML = `<span class="chip-dot" style="background:${currentState==='off'?'var(--red)':'var(--green)'}"></span>${currentState.toUpperCase()}`;
+
+        document.getElementById('visitBadge').textContent = `Visit ${currentVisit} · ses0${currentVisit}`;
+        const sub = padSub(currentSubject);
+        document.getElementById('subBadge').textContent = currentSubject ? `sub-${sub}-${currentGroup}` : 'sub: —';
+    }
+
+    // ── PROTOCOL ───────────────────────────────────────────────────────────
+    // step shape: { type:'item'|'header', label, dur:0, noMed:false, medFixed:'' }
+    // noMed: don't embed med status in name (protocol-level events)
+    // medFixed: always embed 'off' or 'on' regardless of dropdown
+
+    const giladi = [
+        {label:'stwalk'},{label:'dtwalk'},{label:'stcarr'},{label:'stturn'},
+        {label:'dtturn'},{label:'stshuf'},{label:'stagil'},{label:'stdoor'}
+    ];
+    const contWalk = [
+        {label:'2mstwalk',dur:120},{label:'2mdtwalk',dur:120},
+        {label:'lowwalk'},{label:'highwalk'},{label:'lowturn'},{label:'highturn'}
+    ];
+
+    function medBlock(med) {
+        return [
+            {type:'item', label:'vitals',          medFixed:med, dur:0},
+            {type:'item', label:'updrs3',           medFixed:med, dur:0},
+            {type:'header', label:`Gait Assessment · ${med.toUpperCase()}`},
+            ...giladi.map(g=>({type:'item', label:g.label, medFixed:med, dur:0})),
+            {type:'header', label:`Continuous Gait · ${med.toUpperCase()}`},
+            ...contWalk.map(c=>({type:'item', label:c.label, medFixed:med, dur:c.dur||0})),
+            {type:'header', label:`AR-Paradigm · ${med.toUpperCase()}`},
+            {type:'item', label:'ar-ecg-skincon', medFixed:med, dur:0},
+            {type:'item', label:'pupillometry',   medFixed:med, dur:0},
+            {type:'header', label:`MRI · ${med.toUpperCase()}`},
+            {type:'item', label:'mri-setup',  medFixed:med, dur:0},
+            {type:'item', label:'headscout',  medFixed:med, dur:0},
+            {type:'item', label:'t1',         medFixed:med, dur:0},
+            {type:'item', label:'rsfmri',     medFixed:med, dur:0},
+            {type:'item', label:'taskfmri',   medFixed:med, dur:0},
+        ];
+    }
+
+    function buildProtocol(visit) {
+        const v = parseInt(visit);
+        const structural = [];
+        if (v >= 2) {
+            structural.push({type:'header', label:'Structural Imaging'});
+            [{label:'sandwichnm'},{label:'tse'},{label:'diffusion'}]
+              .forEach(s=>structural.push({type:'item', label:s.label, noMed:true, dur:0}));
+        }
+        if (v === 3) structural.push({type:'item', label:'qsm', noMed:true, dur:0});
+
+        return [
+            {type:'header', label:'── Pre-Ingestion'},
+            ...(v===1 ? [{type:'item', label:'ecg-5min-rest', medFixed:'off', dur:300}] : []),
+            {type:'item', label:'ingestion-atomox-placebo', noMed:true, dur:0},
+            {type:'item', label:'vitals-pre-ingestion',     noMed:true, dur:0},
+            {type:'header', label:'── 1hr Waiting Period'},
+            {type:'item', label:'waiting-1hr',    noMed:true, dur:3600},
+            {type:'item', label:'vitals-1hr-post', noMed:true, dur:0},
+            {type:'header', label:'── OFF Block'},
+            ...medBlock('off'),
+            {type:'header', label:'── Dopaminergic Ingestion'},
+            {type:'item', label:'ingestion-dopamine', noMed:true, dur:0},
+            {type:'header', label:'── 45min Waiting Period'},
+            {type:'item', label:'waiting-45min',    noMed:true, dur:2700},
+            {type:'item', label:'vitals-post-dopa', noMed:true, dur:0},
+            {type:'header', label:'── ON Block'},
+            ...medBlock('on'),
+            ...structural,
+        ];
+    }
+
+    let protocol = buildProtocol('1');
+
+    // ── DOM ────────────────────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const startBtn       = $('startButton');
+    const stopBtn        = $('stopButton');
+    const exportBtn      = $('exportButton');
+    const trialList      = $('trialList');
+    const notesInput     = $('notesInput');
+    const customTagInput = $('customTagInput');
+    const addTagBtn      = $('addTagButton');
+    const removeTagBtn   = $('removeTagButton');
+    const discardLastBtn = $('discardLastButton');
+    const resetLogBtn    = $('resetLogButton');
+    const logBody        = $('logBody');
+    const emptyMsg       = $('emptyLogMessage');
+    const selText        = $('activeSelectionText');
+    const countdown      = $('countdownDisplay');
+    const activeDsp      = $('activeSelectionDisplay');
+    const selHeader      = $('selectionHeader');
+    const editToggle     = $('editModeToggle');
+    const stateSelect    = $('stateSelect');
+    const visitSelect    = $('visitSelect');
+    const groupSelect    = $('groupSelect');
+    const subjectInput   = $('subjectInput');
+    const discardModal   = $('discardModal');
+    const discardMBox    = $('discardModalContent');
+    const discardName    = $('discardTrialName');
+    const cancelDiscard  = $('cancelDiscardButton');
+    const confirmDiscard = $('confirmDiscardButton');
+    const resetModal     = $('confirmationModal');
+    const resetMBox      = $('modalContent');
+    const cancelReset    = $('cancelResetButton');
+    const confirmReset   = $('confirmResetButton');
+
+    // ── BELL ──────────────────────────────────────────────────────────────
+    function playBell() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            [[880,0],[1109,.28],[880,.56],[1318,.84]].forEach(([f,t]) => {
+                const osc = ctx.createOscillator(), g = ctx.createGain();
+                osc.connect(g); g.connect(ctx.destination);
+                osc.type = 'sine'; osc.frequency.value = f;
+                const st = ctx.currentTime + t;
+                g.gain.setValueAtTime(0, st);
+                g.gain.linearRampToValueAtTime(.55, st+.02);
+                g.gain.exponentialRampToValueAtTime(.001, st+.7);
+                osc.start(st); osc.stop(st+.75);
+            });
+        } catch(e){}
+    }
+
+    // ── HELPERS ────────────────────────────────────────────────────────────
+    function fmt(s) {
+        const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+        if (h>0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+        return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    }
+    const nowISO = () => new Date().toISOString().replace('T',' ').substring(0,23);
+
+    function updateClock() { $('realTimeClock').textContent = new Date().toTimeString().slice(0,8); }
+
+    // ── TRIAL LIST ─────────────────────────────────────────────────────────
+    function populateTrialList() {
+        trialList.innerHTML = '';
+        selectedEl = null; selText.textContent = '—';
+
+        protocol.forEach((step, idx) => {
+            const li = document.createElement('li');
+            if (step.type === 'header') {
+                li.className = 'trial-item section-header';
+                li.textContent = step.label;
+            } else {
+                const dn    = stepDisplayName(step);
+                const short = step.label;          // short form for UI display
+                li.className = 'trial-item' + (step.dur>0?' timed':'');
+                li.dataset.idx   = idx;
+                li.dataset.dn    = dn;              // full BIDS — used only for log
+                li.dataset.short = short;           // short label — shown in list & active display
+                li.dataset.dur   = step.dur||0;
+                li.innerHTML = `<span class="tdot"></span><span class="tname">${short}</span>`
+                    + (step.dur>0 ? `<span class="timed-badge">${fmt(step.dur)}</span>` : '');
+                li.addEventListener('click', handleClick);
+            }
+            trialList.appendChild(li);
+        });
+        const first = trialList.querySelector('li:not(.section-header)');
+        if (first) first.click();
+        btnStates();
+    }
+
+    function refreshNames() {
+        trialList.querySelectorAll('li.trial-item:not(.section-header)').forEach(li => {
+            const idx = parseInt(li.dataset.idx);
+            const step = protocol[idx];
+            if (!step) return;
+            // Update full BIDS name silently in dataset (for log) — list text stays as short label
+            li.dataset.dn = stepDisplayName(step);
+            // Short label is fixed from step.label; no visual change needed
+        });
+        // Active display also stays as short label
+        if (selectedEl) selText.textContent = selectedEl.dataset.short || selectedEl.dataset.dn || '';
+        updateBidsUI();
+    }
+
+    // ── CLICK / START / STOP ───────────────────────────────────────────────
+    function handleClick(e) {
+        if (isTiming) return;
+        const el = e.currentTarget;
+        if (selectedEl) selectedEl.classList.remove('selected');
+        el.classList.add('selected');
+        selectedEl = el;
+        selText.textContent = el.dataset.short || el.dataset.dn || el.textContent.trim();
+        btnStates();
+    }
+
+    function handleStart() {
+        if (!selectedEl) return;
+        isTiming = true;
+        currentTrialName = selectedEl.dataset.dn || selectedEl.textContent.trim(); // full BIDS → log
+        // Active display keeps the short label already shown
+        logData.push({ trial:currentTrialName, shortLabel: selectedEl.dataset.short || currentTrialName,
+            state:currentState.toUpperCase(),
+            visit:`Visit ${currentVisit}`, event:'Start',
+            notes:notesInput.value.trim(), timestamp:nowISO() });
+        notesInput.value = '';
+        renderLog();
+
+        const dur = parseInt(selectedEl.dataset.dur||0);
+        if (dur>0) { remaining=dur; startCountdown(); }
+        btnStates();
+    }
+
+    function startCountdown() {
+        activeDsp.classList.add('timer-active');
+        selHeader.textContent = 'Time Remaining';
+        countdown.classList.remove('hidden');
+        countdown.textContent = fmt(remaining);
+        timerInt = setInterval(() => {
+            remaining--;
+            countdown.textContent = fmt(remaining);
+            if (remaining<=0) { clearInterval(timerInt); playBell(); handleStop(); }
+        }, 1000);
+    }
+
+    function handleStop() {
+        clearInterval(timerInt);
+        isTiming = false;
+        activeDsp.classList.remove('timer-active');
+        selHeader.textContent = 'Currently Selected';
+        countdown.classList.add('hidden');
+        countdown.textContent = '';
+
+        logData.push({ trial:currentTrialName, shortLabel: selectedEl ? (selectedEl.dataset.short || currentTrialName) : currentTrialName,
+            state:currentState.toUpperCase(),
+            visit:`Visit ${currentVisit}`, event:'Stop', notes:'', timestamp:nowISO() });
+        renderLog();
+
+        // Auto-advance (select only, don't start)
+        if (selectedEl) {
+            const all = Array.from(trialList.querySelectorAll('li.trial-item:not(.section-header)'));
+            const i = all.indexOf(selectedEl);
+            if (i>=0 && i<all.length-1) {
+                const nxt = all[i+1];
+                selectedEl.classList.remove('selected');
+                nxt.classList.add('selected');
+                selectedEl = nxt;
+                selText.textContent = nxt.dataset.short || nxt.dataset.dn || nxt.textContent.trim();
+                nxt.scrollIntoView({behavior:'smooth',block:'nearest'});
+            }
+        }
+        btnStates();
+    }
+
+    // ── LOG ────────────────────────────────────────────────────────────────
+    function renderLog() {
+        logBody.innerHTML = '';
+        emptyMsg.style.display = logData.length?'none':'block';
+        exportBtn.disabled = !logData.length;
+        logData.forEach(e => {
+            const tr = document.createElement('tr');
+            const sc = e.state==='OFF'?'chip chip-off':(e.state==='ON'?'chip chip-on':'chip chip-sub');
+            tr.innerHTML = `
+                <td class="mono" style="font-size:.7rem;color:var(--text)">${e.trial}</td>
+                <td><span class="${sc}" style="font-size:.58rem;padding:.1rem .42rem">${e.state}</span></td>
+                <td style="font-size:.73rem">${e.visit}</td>
+                <td class="${e.event==='Start'?'ev-start':'ev-stop'}">${e.event}</td>
+                <td style="color:var(--text-muted)">${e.notes||''}</td>
+                <td class="mono" style="font-size:.68rem;color:var(--text-muted)">${e.timestamp}</td>`;
+            logBody.appendChild(tr);
+        });
+        btnStates();
+    }
+
+    function btnStates() {
+        startBtn.disabled = isTiming || !selectedEl;
+        stopBtn.disabled  = !isTiming;
+        trialList.style.opacity = isTiming?'.5':'1';
+        trialList.style.pointerEvents = isTiming?'none':'';
+        notesInput.disabled = isTiming;
+        editToggle.disabled = isTiming;
+        stateSelect.disabled = isTiming;
+        visitSelect.disabled = isTiming;
+        groupSelect.disabled = isTiming;
+        subjectInput.disabled = isTiming;
+        discardLastBtn.disabled = !logData.some(e=>e.event==='Stop') || isTiming;
+    }
+
+    function lastCompletedTrial() {
+        // returns { bids, short } for the most recent Stop
+        for (let i=logData.length-1;i>=0;i--) {
+            if (logData[i].event==='Stop') return { bids: logData[i].trial, short: logData[i].shortLabel || logData[i].trial };
+        }
+        return null;
+    }
+
+    // ── MODALS ─────────────────────────────────────────────────────────────
+    function openModal(ov, box) {
+        ov.classList.remove('hidden');
+        requestAnimationFrame(()=>{ ov.style.opacity='1'; box.style.transform='scale(1)'; });
+    }
+    function closeModal(ov, box) {
+        ov.style.opacity='0'; box.style.transform='scale(.95)';
+        setTimeout(()=>ov.classList.add('hidden'),200);
+    }
+
+    // ── INIT ───────────────────────────────────────────────────────────────
+    setInterval(updateClock, 1000); updateClock();
+    populateTrialList(); updateBidsUI(); renderLog();
+
+    sortable = new Sortable(trialList, {
+        animation: 150, ghostClass:'sortable-ghost',
+        filter:'.section-header', disabled:true,
+    });
+
+    // ── LISTENERS ──────────────────────────────────────────────────────────
+    startBtn.addEventListener('click', handleStart);
+    stopBtn.addEventListener('click', handleStop);
+
+    stateSelect.addEventListener('change', e=>{
+        currentState=e.target.value; refreshNames();
+    });
+    visitSelect.addEventListener('change', e=>{
+        currentVisit=e.target.value;
+        protocol=buildProtocol(currentVisit);
+        populateTrialList(); updateBidsUI();
+    });
+    groupSelect.addEventListener('change', e=>{ currentGroup=e.target.value; refreshNames(); });
+    subjectInput.addEventListener('input', e=>{
+        currentSubject=e.target.value.replace(/\D/g,'');
+        e.target.value=currentSubject; refreshNames();
+    });
+
+    addTagBtn.addEventListener('click', ()=>{
+        const val=customTagInput.value.trim(); if(!val) return;
+        const step={type:'item', label:val, dur:0, custom:true};
+        protocol.push(step);
+        const dn = stepDisplayName(step);
+        const li = document.createElement('li');
+        li.className='trial-item'; li.dataset.idx=protocol.length-1;
+        li.dataset.dn=dn; li.dataset.short=val; li.dataset.dur=0;
+        li.innerHTML=`<span class="tdot"></span><span class="tname">${val}</span>`;
+        li.addEventListener('click', handleClick);
+        trialList.appendChild(li); li.click();
+        customTagInput.value='';
+    });
+
+    removeTagBtn.addEventListener('click', ()=>{
+        if (!selectedEl) return;
+        const idx=parseInt(selectedEl.dataset.idx);
+        if (!isNaN(idx)) protocol[idx]=null; // mark removed
+        selectedEl.remove(); selectedEl=null;
+        selText.textContent='—';
+        const first=trialList.querySelector('li:not(.section-header)');
+        if (first) first.click(); else btnStates();
+    });
+
+    editToggle.addEventListener('change', e=>{
+        sortable.option('disabled',!e.target.checked);
+        trialList.style.outline=e.target.checked?'2px dashed #f97316':'';
+        trialList.style.outlineOffset='2px';
+    });
+
+    discardLastBtn.addEventListener('click', ()=>{
+        const last=lastCompletedTrial(); if(!last) return;
+        discardName.textContent = last.short;   // show friendly short name in modal
+        openModal(discardModal,discardMBox);
+    });
+    cancelDiscard.addEventListener('click', ()=>closeModal(discardModal,discardMBox));
+    confirmDiscard.addEventListener('click', ()=>{
+        if (logData.length>=2) {
+            const a=logData[logData.length-1], b=logData[logData.length-2];
+            if (a.event==='Stop'&&b.event==='Start'&&a.trial===b.trial) logData.splice(-2,2);
+        }
+        renderLog(); closeModal(discardModal,discardMBox);
+    });
+
+    resetLogBtn.addEventListener('click', ()=>openModal(resetModal,resetMBox));
+    cancelReset.addEventListener('click',  ()=>closeModal(resetModal,resetMBox));
+    confirmReset.addEventListener('click', ()=>{
+        logData=[]; renderLog();
+        if (isTiming) handleStop();
+        closeModal(resetModal,resetMBox);
+    });
+
+    exportBtn.addEventListener('click', ()=>{
+        const hdr='BIDSTaskID,State,Visit,Event,Notes,Timestamp\n';
+        const rows=logData.map(e=>`"${e.trial}","${e.state}","${e.visit}","${e.event}","${(e.notes||'').replace(/"/g,'""')}","${e.timestamp}"`).join('\n');
+        const blob=new Blob([hdr+rows],{type:'text/csv'});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        const sub=padSub(currentSubject);
+        const dt=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+        a.href=url; a.download=`antifreeze_sub${sub}-${currentGroup}_ses0${currentVisit}_log_${dt}.csv`;
+        a.click(); URL.revokeObjectURL(url);
+    });
+
+    [discardModal,resetModal].forEach(ov=>{
+        ov.addEventListener('click', e=>{
+            if (e.target===ov) closeModal(ov, ov.querySelector('.modal-box'));
+        });
+    });
+});
+</script>
+</body>
+</html>
