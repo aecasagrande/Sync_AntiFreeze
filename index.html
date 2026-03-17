@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         :root {
             --bg: #f0f4f8;
             --white: #ffffff;
@@ -36,12 +35,13 @@
             --teal: #0e7490;
             --teal-lt: #ecfeff;
             --teal-bd: #99f6e4;
+            --amber: #b45309;
+            --amber-lt: #fffbeb;
             --r: 10px;
             --r-sm: 6px;
             --sh: 0 1px 3px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05);
             --sh-lg: 0 8px 32px rgba(0,0,0,.14);
         }
-
         body {
             font-family: 'IBM Plex Sans', sans-serif;
             background: var(--bg);
@@ -49,254 +49,156 @@
             min-height: 100vh;
             padding: 1.5rem 1rem 3rem;
         }
-
         .mono { font-family: 'IBM Plex Mono', monospace; }
-        .container { max-width: 840px; margin: 0 auto; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .hidden { display: none !important; }
 
-        /* ── Header ── */
+        /* HEADER */
         .app-header {
             display: flex; justify-content: space-between; align-items: flex-start;
             margin-bottom: 1.25rem; flex-wrap: wrap; gap: .75rem;
         }
-        .app-title {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 1.5rem; font-weight: 600;
-            color: var(--blue); letter-spacing: -.02em;
-        }
-        .app-sub {
-            font-size: .7rem; color: var(--text-muted);
-            font-family: 'IBM Plex Mono', monospace;
-            letter-spacing: .04em; margin-top: .1rem;
-        }
-        .header-right {
-            display: flex; flex-direction: column; align-items: flex-end; gap: .3rem;
-        }
-        #realTimeClock {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 1.05rem; font-weight: 500; color: var(--text); letter-spacing: .05em;
-        }
-        .bids-pill {
-            font-family: 'IBM Plex Mono', monospace; font-size: .65rem;
-            background: var(--blue-lt); color: var(--blue);
-            border: 1px solid var(--blue-bd); border-radius: 20px;
-            padding: .18rem .6rem; letter-spacing: .02em; max-width: 340px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .app-title { font-family: 'IBM Plex Mono', monospace; font-size: 1.5rem; font-weight: 600; color: var(--blue); letter-spacing: -.02em; }
+        .app-sub { font-size: .8rem; color: var(--text-muted); margin-top: 2px; }
+        .header-right { text-align: right; }
+        #realTimeClock { font-family: 'IBM Plex Mono'; font-size: 1.1rem; font-weight: 600; color: var(--text); }
+        .bids-pill { font-family: 'IBM Plex Mono'; font-size: .65rem; color: var(--blue); background: var(--blue-lt); border: 1px solid var(--blue-bd); border-radius: 20px; padding: 2px 10px; margin-top: 4px; display: inline-block; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* ── Card ── */
+        /* CARDS */
         .card {
             background: var(--white); border: 1px solid var(--border);
             border-radius: var(--r); box-shadow: var(--sh);
             padding: 1.2rem 1.4rem; margin-bottom: 1rem;
         }
-        .card-title {
-            font-size: .62rem; font-weight: 600; letter-spacing: .1em;
-            text-transform: uppercase; color: var(--text-muted); margin-bottom: .85rem;
-        }
+        .card-title { font-size: .62rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .85rem; }
+        .field-lbl { font-size: .72rem; font-weight: 500; color: var(--text-muted); margin-bottom: .3rem; text-transform: uppercase; letter-spacing: .05em; }
+        .field-grp { display: flex; flex-direction: column; }
 
-        /* ── Config grid ── */
-        .config-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1.3fr 1fr; gap: .65rem;
+        /* CONFIG GRID */
+        .config-grid { display: grid; grid-template-columns: auto 1fr 1fr 1.3fr 1fr; gap: .65rem; align-items: end; }
+
+        /* SITE SELECTOR */
+        .site-selector { display: flex; gap: 4px; }
+        .site-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+            cursor: pointer; background: var(--white); transition: all .12s; font-size: .6rem;
+            color: var(--text-muted); font-family: 'IBM Plex Mono'; white-space: nowrap;
         }
-        @media(max-width:600px){ .config-grid { grid-template-columns: 1fr 1fr; } }
-        .field-grp { display: flex; flex-direction: column; gap: .28rem; }
-        .field-lbl {
-            font-size: .62rem; font-weight: 600; letter-spacing: .08em;
-            text-transform: uppercase; color: var(--text-muted);
-        }
+        .site-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .site-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+        .site-btn .flag { font-size: 1.2rem; line-height: 1; }
 
         input[type=text], select, textarea {
             font-family: 'IBM Plex Sans', sans-serif; font-size: .85rem;
             color: var(--text); background: var(--white);
             border: 1px solid var(--border-strong); border-radius: var(--r-sm);
             padding: .42rem .7rem; outline: none; width: 100%;
-            transition: border-color .15s, box-shadow .15s;
         }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--blue); box-shadow: 0 0 0 3px rgba(29,108,224,.1);
-        }
-        input:disabled, select:disabled, textarea:disabled { opacity: .4; cursor: not-allowed; }
-        /* Notes field is always interactive */
-        #notesInput { opacity: 1 !important; pointer-events: auto !important; cursor: text !important; }
+        input[type=text]:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-lt); }
 
-        .bids-box {
-            margin-top: .85rem;
-        }
-        .bids-box-lbl {
-            font-size: .6rem; font-weight: 600; letter-spacing: .08em;
-            text-transform: uppercase; color: var(--text-muted); margin-bottom: .25rem;
-        }
-        .bids-box-val {
-            font-family: 'IBM Plex Mono', monospace; font-size: .78rem;
-            font-weight: 500; color: var(--blue);
-            background: var(--blue-lt); border: 1px solid var(--blue-bd);
-            border-radius: var(--r-sm); padding: .5rem .85rem; word-break: break-all;
-        }
+        .bids-box { margin-top: 15px; }
+        #bidsFullPreview { background: var(--blue-lt); padding: 10px; border-radius: 5px; color: var(--blue); font-size: .82rem; word-break: break-all; }
 
-        /* chips */
-        .chips-row { display: flex; gap: .45rem; margin-top: .75rem; flex-wrap: wrap; align-items: center; }
-        .chip {
-            display: inline-flex; align-items: center; gap: .28rem;
-            padding: .18rem .55rem; border-radius: 20px;
-            font-family: 'IBM Plex Mono', monospace; font-size: .66rem; font-weight: 600;
-            letter-spacing: .03em;
-        }
-        .chip-off  { background: var(--red-lt);    color: var(--red);    border: 1px solid var(--red-bd); }
-        .chip-on   { background: var(--green-lt);  color: var(--green);  border: 1px solid var(--green-bd); }
-        .chip-vis  { background: var(--purple-lt); color: var(--purple); border: 1px solid var(--purple-bd); }
-        .chip-sub  { background: #f4f6f9; color: var(--text-muted); border: 1px solid var(--border); }
-        .chip-dot  { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-
-        /* ── Active display ── */
+        /* ACTIVE SELECTION */
         #activeSelectionDisplay {
             border: 2px solid var(--border); border-radius: var(--r);
-            padding: .85rem 1rem; text-align: center;
-            margin-bottom: .7rem; transition: border-color .2s, background .2s;
+            padding: .85rem 1rem; text-align: center; margin-bottom: .7rem; transition: all .3s;
         }
-        #activeSelectionDisplay.timer-active {
-            border-color: var(--red); background: var(--red-lt);
-            animation: pulseBd 1.6s ease-in-out infinite;
-        }
-        @keyframes pulseBd {
-            0%,100% { border-color: var(--red); }
-            50%      { border-color: #fca5a5;   }
-        }
-        #selectionHeader {
-            font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
-            color: var(--text-muted); font-weight: 600; display: block; margin-bottom: .25rem;
-        }
-        #activeSelectionText {
-            font-family: 'IBM Plex Mono', monospace; font-size: .88rem;
-            font-weight: 600; color: var(--text); word-break: break-all;
-        }
-        #countdownDisplay {
-            font-family: 'IBM Plex Mono', monospace; font-size: 2.3rem;
-            font-weight: 600; color: var(--red); margin-top: .3rem; letter-spacing: .05em;
-        }
+        #activeSelectionDisplay.timer-active { border-color: var(--red); background: var(--red-lt); animation: pulseBd 1.6s ease-in-out infinite; }
+        @keyframes pulseBd { 0%,100% { border-color: var(--red); } 50% { border-color: #fca5a5; } }
+        #selectionHeader { display: block; margin-bottom: 4px; }
+        #activeSelectionText { font-family: 'IBM Plex Mono'; font-weight: 600; font-size: .9rem; }
+        #countdownDisplay { font-family: 'IBM Plex Mono'; font-size: 1.2rem; color: var(--red); font-weight: 600; margin-top: 4px; }
 
-        /* ── Trial list ── */
-        #trialList {
-            list-style: none; border: 1px solid var(--border);
-            border-radius: var(--r-sm); max-height: 256px; overflow-y: auto; background: #fafbfd;
-        }
-        #trialList::-webkit-scrollbar { width: 6px; }
-        #trialList::-webkit-scrollbar-track { background: #f1f5f9; }
-        #trialList::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
-
-        .trial-item {
-            padding: .44rem .9rem; cursor: pointer;
-            font-family: 'IBM Plex Mono', monospace; font-size: .73rem; color: var(--text-mid);
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: .45rem;
-            transition: background .1s; user-select: none;
-        }
+        /* TRIAL LIST */
+        #trialList { list-style: none; border: 1px solid var(--border); border-radius: var(--r-sm); max-height: 300px; overflow-y: auto; background: #fafbfd; }
+        .trial-item { padding: .44rem .9rem; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .45rem; font-family: 'IBM Plex Mono'; font-size: .8rem; }
         .trial-item:last-child { border-bottom: none; }
-        .trial-item:hover { background: var(--blue-lt); }
-        .trial-item.selected { background: var(--blue); color: #fff; font-weight: 500; }
-        .trial-item.selected .tdot { background: white; }
-        .trial-item.section-header {
-            background: #f0f4f8; color: var(--text-muted); font-size: .59rem;
-            letter-spacing: .09em; text-transform: uppercase; cursor: default;
-            pointer-events: none; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600;
-            padding: .28rem .9rem;
-        }
-        .tdot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0; }
-        .timed-badge {
-            margin-left: auto; font-size: .58rem;
-            background: var(--orange-lt); color: var(--orange);
-            border: 1px solid var(--orange-bd); border-radius: 10px;
-            padding: .08rem .38rem; font-weight: 600;
-        }
-        .trial-item.selected .timed-badge {
-            background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.4);
-        }
-        .sortable-ghost { opacity: .4; background: var(--blue-lt) !important; }
+        .trial-item.selected { background: var(--blue); color: #fff; }
+        .trial-item.section-header { background: #eef1f7; font-size: .58rem; color: var(--text-muted); font-weight: 600; letter-spacing: .08em; cursor: default; padding: .35rem .9rem; text-transform: uppercase; }
+        .trial-item.done { opacity: .45; text-decoration: line-through; }
+        .trial-item .sync-badge { font-size: .55rem; background: var(--teal-lt); color: var(--teal); border: 1px solid var(--teal-bd); border-radius: 3px; padding: 1px 4px; margin-left: auto; white-space: nowrap; }
 
-        /* ── Toggle ── */
-        .tog-wrap { display: flex; align-items: center; gap: .4rem; }
-        .tog-inp { display: none; }
-        .tog-track {
-            width: 35px; height: 18px; background: var(--border-strong);
-            border-radius: 9px; position: relative; cursor: pointer; transition: background .2s;
-        }
-        .tog-inp:checked + .tog-track { background: var(--blue); }
-        .tog-thumb {
-            position: absolute; width: 12px; height: 12px;
-            background: white; border-radius: 50%; top: 3px; left: 3px;
-            transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
-        }
-        .tog-inp:checked + .tog-track .tog-thumb { left: 20px; }
+        /* BUTTONS */
+        .btn { font-family: 'IBM Plex Mono'; font-size: .78rem; padding: .48rem .95rem; border-radius: var(--r-sm); cursor: pointer; border: 1px solid transparent; transition: all .12s; white-space: nowrap; }
+        .btn:disabled { opacity: .4; cursor: not-allowed; }
+        .btn-blue   { background: var(--blue); color: #fff; }
+        .btn-start  { background: var(--green); color: #fff; width: 100%; font-size: .98rem; padding: .75rem; }
+        .btn-stop   { background: var(--red); color: #fff; width: 100%; font-size: .98rem; padding: .75rem; }
+        .btn-orange { background: var(--orange); color: #fff; }
+        .btn-red    { background: var(--red); color: #fff; }
+        .btn-teal   { background: var(--teal); color: #fff; }
+        .btn-amber  { background: var(--amber); color: #fff; }
+        .btn-purple { background: var(--purple); color: #fff; }
+        .btn-ghost  { background: transparent; border-color: var(--border-strong); color: var(--text-mid); }
 
-        /* ── Buttons ── */
-        .btn {
-            font-family: 'IBM Plex Mono', monospace; font-size: .78rem; font-weight: 500;
-            letter-spacing: .02em; padding: .48rem .95rem;
-            border-radius: var(--r-sm); border: 1px solid transparent;
-            cursor: pointer; transition: all .12s; white-space: nowrap;
-        }
-        .btn:disabled { opacity: .3; cursor: not-allowed; }
-        .btn-start { background: var(--green); color: #fff; font-size: .98rem; padding: .75rem; width: 100%; }
-        .btn-start:hover:not(:disabled) { background: #166534; }
-        .btn-stop  { background: var(--red);   color: #fff; font-size: .98rem; padding: .75rem; width: 100%; }
-        .btn-stop:hover:not(:disabled)  { background: #991b1b; }
-        .btn-blue   { background: var(--blue-lt);   color: var(--blue);   border-color: var(--blue-bd); }
-        .btn-blue:hover:not(:disabled)   { background: #dbeafe; }
-        .btn-red    { background: var(--red-lt);    color: var(--red);    border-color: var(--red-bd); }
-        .btn-red:hover:not(:disabled)    { background: #fee2e2; }
-        .btn-orange { background: var(--orange-lt); color: var(--orange); border-color: var(--orange-bd); }
-        .btn-orange:hover:not(:disabled) { background: #ffedd5; }
-        .btn-gray   { background: #f1f5f9; color: var(--text-mid); border-color: var(--border-strong); }
-        .btn-gray:hover:not(:disabled)   { background: #e2e8f0; }
-        .btn-teal   { background: var(--teal-lt);   color: var(--teal);   border-color: var(--teal-bd); }
-        .btn-teal:hover:not(:disabled)   { background: #ccfbf1; }
-
-        /* ── Log ── */
+        /* LOG */
         .log-scroll { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--r-sm); }
-        .log-scroll::-webkit-scrollbar { width: 6px; }
-        .log-scroll::-webkit-scrollbar-track { background: #f8fafc; }
-        .log-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
         table { width: 100%; border-collapse: collapse; }
-        thead th {
-            position: sticky; top: 0; z-index: 1; background: #f5f7fb;
-            border-bottom: 1px solid var(--border);
-            font-size: .59rem; font-weight: 600; letter-spacing: .1em;
-            text-transform: uppercase; color: var(--text-muted);
-            padding: .52rem .8rem; text-align: left;
-        }
-        tbody td { font-size: .75rem; padding: .44rem .8rem; border-bottom: 1px solid var(--border); color: var(--text-mid); }
+        thead th { position: sticky; top: 0; background: #f5f7fb; font-size: .59rem; text-transform: uppercase; color: var(--text-muted); padding: .52rem .8rem; text-align: left; border-bottom: 1px solid var(--border); }
+        tbody td { font-size: .72rem; padding: .44rem .8rem; border-bottom: 1px solid var(--border); font-family: 'IBM Plex Mono'; }
         tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover td { background: #f9fbff; }
-        .ev-start { color: var(--green); font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
-        .ev-stop  { color: var(--red);   font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+        tbody tr:hover td { background: #fafbfd; }
 
-        hr.div { border: none; border-top: 1px solid var(--border); margin: .9rem 0; }
-
-        /* ── Modals ── */
-        .modal-ov {
-            position: fixed; inset: 0; background: rgba(10,18,30,.5);
-            backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            padding: 1rem; z-index: 200; opacity: 0; transition: opacity .2s;
-        }
+        /* MODALS */
+        .modal-ov { position: fixed; inset: 0; background: rgba(10,18,30,.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; }
         .modal-ov.hidden { display: none; }
-        .modal-box {
-            background: var(--white); border: 1px solid var(--border);
-            border-radius: var(--r); box-shadow: var(--sh-lg);
-            padding: 1.7rem; width: 100%; max-width: 400px;
-            transform: scale(.95); transition: transform .2s;
-        }
-        .m-title { font-size: 1.05rem; font-weight: 600; margin-bottom: .55rem; }
-        .m-body  { font-size: .85rem; color: var(--text-mid); margin-bottom: 1.2rem; }
-        .m-hi    { font-family: 'IBM Plex Mono', monospace; font-size: .82rem; color: var(--orange); font-weight: 500; margin-bottom: 1.2rem; }
-        .m-acts  { display: flex; justify-content: flex-end; gap: .5rem; }
+        .modal-box { background: var(--white); padding: 1.7rem; border-radius: var(--r); width: 100%; max-width: 460px; box-shadow: var(--sh-lg); }
+        .modal-title { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; }
 
-        .act-row { display: flex; gap: .45rem; flex-wrap: wrap; align-items: center; }
-        .ss-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+        /* MED TIMER BANNER */
+        #medTimerBanner {
+            background: var(--amber-lt); border: 1.5px solid var(--orange-bd);
+            border-radius: var(--r); padding: .85rem 1.2rem;
+            display: flex; align-items: center; gap: 1rem;
+            margin-bottom: 1rem; animation: pulseAmber 2s ease-in-out infinite;
+        }
+        #medTimerBanner.hidden { display: none; }
+        @keyframes pulseAmber { 0%,100% { border-color: var(--orange-bd); } 50% { border-color: var(--amber); } }
+        .med-timer-icon { font-size: 1.5rem; }
+        .med-timer-info { flex: 1; }
+        .med-timer-label { font-size: .68rem; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: .06em; }
+        #medTimerDisplay { font-family: 'IBM Plex Mono'; font-size: 1.4rem; font-weight: 600; color: var(--text); }
+        .med-timer-sub { font-size: .65rem; color: var(--text-muted); }
+        #stopMedTimerBtn { background: var(--amber); color: white; border: none; border-radius: var(--r-sm); padding: .5rem .9rem; cursor: pointer; font-family: 'IBM Plex Mono'; font-size: .75rem; white-space: nowrap; }
+
+        /* SPECIALIST TIMERS */
+        .spec-timers { display: flex; gap: .75rem; margin-bottom: 1rem; }
+        .spec-timer-card {
+            flex: 1; border: 1.5px solid var(--border); border-radius: var(--r);
+            padding: .75rem 1rem; display: flex; flex-direction: column; gap: .35rem;
+        }
+        .spec-timer-card.running { border-color: var(--purple-bd); background: var(--purple-lt); }
+        .spec-timer-card.running.mri { border-color: var(--blue-bd); background: var(--blue-lt); }
+        .spec-timer-label { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); }
+        .spec-timer-display { font-family: 'IBM Plex Mono'; font-size: 1.1rem; font-weight: 600; color: var(--text); }
+        .spec-timer-btns { display: flex; gap: 5px; margin-top: 2px; }
+        .spec-timer-btns button { font-size: .68rem; padding: .3rem .6rem; border-radius: 4px; cursor: pointer; border: 1px solid transparent; font-family: 'IBM Plex Mono'; }
+        .spec-btn-start { background: var(--purple); color: white; }
+        .spec-btn-start.mri { background: var(--blue); }
+        .spec-btn-stop { background: var(--red); color: white; }
+        .spec-btn-stop:disabled { opacity: .4; cursor: not-allowed; }
+        .spec-btn-start:disabled { opacity: .4; cursor: not-allowed; }
+
+        /* QC PANEL */
+        #qcPanel .qc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: .5rem; }
+        .qc-item { display: flex; align-items: center; gap: .5rem; font-size: .75rem; padding: .4rem .6rem; border-radius: var(--r-sm); border: 1px solid var(--border); background: #fafbfd; font-family: 'IBM Plex Mono'; }
+        .qc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .qc-dot.ok { background: var(--green); }
+        .qc-dot.miss { background: var(--red); }
+        .qc-dot.partial { background: var(--orange); }
+        .qc-label { flex: 1; }
+        .qc-count { font-size: .65rem; color: var(--text-muted); }
+
+        /* UPDRS calc display */
+        #updrsResult { font-family: 'IBM Plex Mono'; font-size: 1.3rem; font-weight: 700; color: var(--blue); text-align: center; padding: .75rem; background: var(--blue-lt); border-radius: var(--r-sm); margin-top: .75rem; }
     </style>
 </head>
 <body>
 <div class="container">
 
+    <!-- HEADER -->
     <div class="app-header">
         <div>
             <div class="app-title">Sync_AntiFreeze</div>
@@ -304,139 +206,215 @@
         </div>
         <div class="header-right">
             <div id="realTimeClock">--:--:--</div>
-            <div id="bidsHeaderPill" class="bids-pill">antifreeze_sub???-??_ses??-???_...</div>
+            <div id="bidsHeaderPill" class="bids-pill">AT-sub-???_ses-???_...</div>
         </div>
     </div>
 
+    <!-- SESSION CONFIG CARD -->
     <div class="card">
         <div class="card-title">Session Configuration</div>
         <div class="config-grid">
+
+            <!-- SITE SELECTOR -->
             <div class="field-grp">
-                <div class="field-lbl">Subject ID</div>
-                <input type="text" id="subjectInput" placeholder="e.g. 001" maxlength="6">
+                <div class="field-lbl">Site</div>
+                <div class="site-selector" id="siteBtns">
+                    <button class="site-btn active" data-site="can" title="Canada">
+                        <span class="flag">🇨🇦</span><span>CAN</span>
+                    </button>
+                    <button class="site-btn" data-site="aus" title="Australia">
+                        <span class="flag">🇦🇺</span><span>AUS</span>
+                    </button>
+                    <button class="site-btn" data-site="nld" title="Netherlands">
+                        <span class="flag">🇳🇱</span><span>NLD</span>
+                    </button>
+                    <button class="site-btn" data-site="usa" title="United States">
+                        <span class="flag">🇺🇸</span><span>USA</span>
+                    </button>
+                </div>
             </div>
+
+            <!-- PARTICIPANT ID -->
+            <div class="field-grp">
+                <div class="field-lbl">Participant #</div>
+                <input type="text" id="subjectInput" placeholder="e.g. 01" maxlength="4" style="text-align:center; font-size:1rem; font-weight:600; font-family:'IBM Plex Mono';">
+            </div>
+
+            <!-- VISIT / SESSION -->
+            <div class="field-grp">
+                <div class="field-lbl">Visit / Session</div>
+                <select id="visitSelect">
+                    <option value="t1on">Visit 1 – ON (ses-t1on)</option>
+                    <option value="t2off">Visit 2 OFF (ses-t2off)</option>
+                    <option value="t2on">Visit 2 ON (ses-t2on)</option>
+                    <option value="t3off">Visit 3 OFF (ses-t3off)</option>
+                    <option value="t3on">Visit 3 ON (ses-t3on)</option>
+                </select>
+            </div>
+
+            <!-- MED STATE (auto from visit, but editable) -->
+            <div class="field-grp">
+                <div class="field-lbl">Med State</div>
+                <select id="stateSelect">
+                    <option value="on">ON Medication</option>
+                    <option value="off">OFF Medication</option>
+                </select>
+            </div>
+
+            <!-- GROUP (FR always; NF commented out for potential future use)
             <div class="field-grp">
                 <div class="field-lbl">Group</div>
                 <select id="groupSelect">
                     <option value="FR">FR – Freezer</option>
-                    <option value="NF">NF – Non-Freezer</option>
+                    <!-- <option value="NF">NF – Non-Freezer</option> -->
                 </select>
             </div>
-            <div class="field-grp">
-                <div class="field-lbl">Visit / Session</div>
-                <select id="visitSelect">
-                    <option value="1">Visit 1 (ses01)</option>
-                    <option value="2">Visit 2 (ses02)</option>
-                    <option value="3">Visit 3 (ses03)</option>
-                </select>
-            </div>
-            <div class="field-grp">
-                <div class="field-lbl">Med Status</div>
-                <select id="stateSelect">
-                    <option value="off">OFF State</option>
-                    <option value="on">ON State</option>
-                </select>
-            </div>
-        </div>
+            -->
 
+        </div>
         <div class="bids-box">
-            <div class="bids-box-lbl">Active BIDS Prefix</div>
-            <div id="bidsFullPreview" class="bids-box-val">antifreeze_sub???-??_ses??-???</div>
-        </div>
-
-        <div class="chips-row">
-            <span id="stateBadge" class="chip chip-off"><span class="chip-dot" style="background:var(--red)"></span>OFF</span>
-            <span id="visitBadge" class="chip chip-vis">Visit 1 · ses01</span>
-            <span id="subBadge"   class="chip chip-sub">sub: —</span>
+            <div class="field-lbl">Active BIDS Prefix</div>
+            <div id="bidsFullPreview" class="mono">...</div>
         </div>
     </div>
 
-    <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem;flex-wrap:wrap;gap:.5rem;">
-            <div class="card-title" style="margin:0">Protocol Steps</div>
-            <div class="tog-wrap">
-                <span style="font-size:.66rem;color:var(--text-muted)">Lock</span>
-                <label>
-                    <input type="checkbox" id="editModeToggle" class="tog-inp">
-                    <div class="tog-track"><div class="tog-thumb"></div></div>
-                </label>
-                <span style="font-size:.66rem;color:var(--text-muted)">Edit Order</span>
+    <!-- MED BACKGROUND TIMER BANNER (hidden until started) -->
+    <div id="medTimerBanner" class="hidden">
+        <div class="med-timer-icon">💊</div>
+        <div class="med-timer-info">
+            <div class="med-timer-label">Medication Intake Period – Running in Background</div>
+            <div id="medTimerDisplay">00:00:00</div>
+            <div class="med-timer-sub" id="medTimerStart">Started: —</div>
+        </div>
+        <button id="stopMedTimerBtn">■ End Med Period</button>
+    </div>
+
+    <!-- SPECIALIST TIMERS: MRI + PUPILS -->
+    <div class="spec-timers">
+        <div class="spec-timer-card mri" id="mriTimerCard">
+            <div class="spec-timer-label">🧲 MRI Session</div>
+            <div class="spec-timer-display" id="mriTimerDisplay">--:--:--</div>
+            <div class="spec-timer-btns">
+                <button class="spec-btn-start mri" id="mriStartBtn">▶ Start</button>
+                <button class="spec-btn-stop" id="mriStopBtn" disabled>■ Stop</button>
             </div>
         </div>
+        <div class="spec-timer-card" id="pupilTimerCard">
+            <div class="spec-timer-label">👁 Pupil Session</div>
+            <div class="spec-timer-display" id="pupilTimerDisplay">--:--:--</div>
+            <div class="spec-timer-btns">
+                <button class="spec-btn-start" id="pupilStartBtn">▶ Start</button>
+                <button class="spec-btn-stop" id="pupilStopBtn" disabled>■ Stop</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- TRIAL CONTROL CARD -->
+    <div class="card">
         <div id="activeSelectionDisplay">
-            <span id="selectionHeader">Currently Selected</span>
-            <div id="activeSelectionText" class="mono">—</div>
+            <span id="selectionHeader" class="field-lbl">Currently Selected</span>
+            <div id="activeSelectionText" class="mono" style="font-weight:600;">—</div>
             <div id="countdownDisplay" class="hidden"></div>
         </div>
-
         <ul id="trialList"></ul>
-
-        <div class="act-row" style="margin-top:.65rem">
-            <input type="text" id="customTagInput" placeholder="Custom step name (BIDS prefix auto-added)..." style="flex:1;min-width:0">
-            <button id="addTagButton"    class="btn btn-blue">+ Add</button>
-            <button id="removeTagButton" class="btn btn-red">Remove</button>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <input type="text" id="customTagInput" placeholder="Custom step name..." style="flex:1">
+            <button id="addTagButton" class="btn btn-blue">+ Add</button>
+            <button id="removeTagButton" class="btn btn-ghost">Remove</button>
         </div>
-
-        <hr class="div">
-        <div class="field-lbl" style="margin-bottom:.3rem">Notes (optional)</div>
-        <textarea id="notesInput" rows="2" placeholder="Notes for this start/stop event..."></textarea>
-        <hr class="div">
-
-        <div class="ss-grid">
+        <div style="margin-top:12px;">
+            <div class="field-lbl">Notes (optional)</div>
+            <textarea id="notesInput" rows="2" placeholder="Notes for this session..."></textarea>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;">
             <button id="startButton" class="btn btn-start">▶ START</button>
             <button id="stopButton"  class="btn btn-stop">■ STOP</button>
         </div>
     </div>
 
+    <!-- QC FILE CHECK -->
+    <div class="card" id="qcPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: .5rem;">
+            <div class="card-title" style="margin-bottom:0;">File Collection QC</div>
+            <button id="refreshQcBtn" class="btn btn-ghost" style="font-size:.7rem; padding:.3rem .7rem;">↻ Refresh</button>
+        </div>
+        <div style="font-size:.72rem; color:var(--text-muted); margin-bottom:.5rem;">Expected files with sync signal per block — based on logged events.</div>
+        <div class="qc-grid" id="qcGrid"></div>
+    </div>
+
+    <!-- EVENT LOG -->
     <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;flex-wrap:wrap;gap:.5rem;">
-            <div class="card-title" style="margin:0">Event Log</div>
-            <div class="act-row">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+            <div class="card-title" style="margin-bottom:0;">Event Log</div>
+            <div style="display:flex; gap:5px; flex-wrap:wrap;">
                 <button id="discardLastButton" class="btn btn-orange">Discard Last</button>
-                <button id="resetLogButton"    class="btn btn-red">Reset Log</button>
-                <button id="exportButton"      class="btn btn-teal">Export CSV</button>
+                <button id="resetLogButton" class="btn btn-red">Reset Log</button>
+                <button id="exportButton" class="btn btn-teal">Export CSV</button>
             </div>
         </div>
         <div class="log-scroll">
             <table>
                 <thead>
                     <tr>
-                        <th>BIDS Task ID</th>
-                        <th>State</th>
-                        <th>Visit</th>
+                        <th>BIDS Filename</th>
+                        <th>Modality</th>
+                        <th>Session</th>
                         <th>Event</th>
                         <th>Notes</th>
                         <th>Timestamp</th>
+                        <th>Duration</th>
                     </tr>
                 </thead>
                 <tbody id="logBody"></tbody>
             </table>
         </div>
-        <p id="emptyLogMessage" style="text-align:center;color:var(--text-muted);font-size:.78rem;font-family:'IBM Plex Mono',monospace;padding:1.2rem 0">// log is empty</p>
+        <p id="emptyLogMessage" style="text-align:center; padding:20px; color:#aaa; font-size:.8rem;">// log is empty</p>
     </div>
 
-</div>
+</div><!-- /container -->
 
+<!-- DISCARD MODAL -->
 <div id="discardModal" class="modal-ov hidden">
-    <div id="discardModalContent" class="modal-box">
-        <div class="m-title">Discard Last Trial?</div>
-        <div class="m-body">Remove the most recent Start/Stop pair:</div>
-        <div id="discardTrialName" class="m-hi"></div>
-        <div class="m-acts">
-            <button id="cancelDiscardButton"  class="btn btn-gray">Cancel</button>
+    <div class="modal-box">
+        <div class="modal-title">Discard Last Entry?</div>
+        <div id="discardTrialName" style="margin:10px 0; font-weight:bold; font-family:'IBM Plex Mono'; font-size:.85rem;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+            <button id="cancelDiscardButton" class="btn btn-ghost">Cancel</button>
             <button id="confirmDiscardButton" class="btn btn-orange">Discard</button>
         </div>
     </div>
 </div>
 
+<!-- RESET MODAL -->
 <div id="confirmationModal" class="modal-ov hidden">
-    <div id="modalContent" class="modal-box">
-        <div class="m-title">Reset Entire Log?</div>
-        <div class="m-body">This permanently deletes all log entries and cannot be undone.</div>
-        <div class="m-acts">
-            <button id="cancelResetButton"  class="btn btn-gray">Cancel</button>
+    <div class="modal-box">
+        <div class="modal-title">Reset Entire Log?</div>
+        <p style="margin:10px 0; font-size:.85rem;">This cannot be undone.</p>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+            <button id="cancelResetButton" class="btn btn-ghost">Cancel</button>
             <button id="confirmResetButton" class="btn btn-red">Confirm Reset</button>
+        </div>
+    </div>
+</div>
+
+<!-- UPDRS AUTO-CALC MODAL -->
+<div id="updrsModal" class="modal-ov hidden">
+    <div class="modal-box">
+        <div class="modal-title">⚠️ UPDRS Starting – Calculate Time Since Dose</div>
+        <p style="font-size:.82rem; color:var(--text-mid); margin-bottom:.75rem;">Medication intake was logged. UPDRS is now starting.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-bottom:.75rem;">
+            <div>
+                <div class="field-lbl">Medication Ingestion Time</div>
+                <div id="updrsIntakeTime" class="mono" style="padding:.5rem; background:var(--orange-lt); border-radius:5px; font-size:.85rem; border:1px solid var(--orange-bd);"></div>
+            </div>
+            <div>
+                <div class="field-lbl">UPDRS Start Time</div>
+                <div id="updrsStartTime" class="mono" style="padding:.5rem; background:var(--blue-lt); border-radius:5px; font-size:.85rem; border:1px solid var(--blue-bd);"></div>
+            </div>
+        </div>
+        <div id="updrsResult">— min since last dose</div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+            <button id="confirmUpdrsButton" class="btn btn-blue">Log & Proceed</button>
         </div>
     </div>
 </div>
@@ -444,465 +422,602 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ── STATE ──────────────────────────────────────────────────────────────
-    let logData       = [];
-    let isTiming      = false;
+    /* =====================================================================
+       STATE
+    ====================================================================== */
+    let logData         = [];
+    let isTiming        = false;
     let currentTrialName = '';
-    let currentState  = 'off';
-    let currentVisit  = '1';
-    let currentGroup  = 'FR';
-    let currentSubject= '';
-    let selectedEl    = null;
-    let sortable      = null;
-    let timerInt      = null;
-    let remaining     = 0;
+    let currentMedState = 'on';
+    let currentVisit    = 't1on';
+    let currentSite     = 'can';
+    let currentSubject  = '';
+    let selectedEl      = null;
+    let timerInt        = null;
+    let remaining       = 0;
+    let startTimestamp  = null;   // wall-clock when START pressed
 
-    // ── BIDS HELPERS ───────────────────────────────────────────────────────
-    const padSub = s => s ? s.replace(/\D/g,'').padStart(3,'0').substring(0,6)||'???' : '???';
+    // Background med timer
+    let medTimerRunning   = false;
+    let medTimerStart     = null; // Date object
+    let medTimerInterval  = null;
+    let medIngestionTime  = null; // stored for UPDRS calc
 
-    function getBidsPrefix() {
-        return `antifreeze_sub${padSub(currentSubject)}-${currentGroup}_ses0${currentVisit}-${currentState}`;
+    // Specialist timers
+    let mriRunning = false, mriStart = null, mriInterval = null, mriSeconds = 0;
+    let pupilRunning = false, pupilStart = null, pupilInterval = null, pupilSeconds = 0;
+
+    /* =====================================================================
+       PROTOCOL DEFINITION
+    ====================================================================== */
+    // ECG/GSR single block tasks (no individual sync file)
+    // Vitals: NO sync needed
+    // Giladi: ECG/GSR = single file "giladiprotocol", APDM = per-task, Video = per-task, Sync = yes
+    // ContWalk: ECG/GSR = "STDT", APDM = per-task, Video = per-task, Sync = yes
+    // AR: ECG/GSR = "AR", APDM = per-task, Video = per-task, Sync = yes
+    // Cognitive: pupils only (tracked separately), ECG/GSR = "cogtask"
+
+    const GILADI_TASKS = [
+        {label:'stwalk'}, {label:'dtwalk'}, {label:'stcarr'},
+        {label:'stturn'}, {label:'dtturn'}, {label:'stshuf'},
+        {label:'stagil'}, {label:'stdoor'}
+    ];
+    const CONT_WALK_TASKS = [
+        {label:'st2mwalk', dur:120}, {label:'dt2mwalk', dur:120},
+        {label:'lowwalk'}, {label:'highwalk'}, {label:'lowturn'}, {label:'highturn'}
+    ];
+    const AR_TASKS = [
+        {label:'arltfpwalk'}, {label:'arlt2mwalk'}, {label:'arhtfpwalk'},
+        {label:'arht2mwalk'}, {label:'arltturn'}, {label:'arhtturn'}
+    ];
+
+    // Protocol builder — state-aware
+    function buildProtocol(visit, medState) {
+        const steps = [];
+
+        // === RESTING VITALS (no sync needed) ===
+        steps.push({type:'header', label:'── Resting Vitals (ECG/GSR · no sync)'});
+        steps.push({type:'item', label:'vitals-preIP',  noSync:true, modality:'ecg/gsr'});
+        steps.push({type:'item', label:'vitals-postIP', noSync:true, modality:'ecg/gsr'});
+        steps.push({type:'item', label:'vitals-on',     noSync:true, modality:'ecg/gsr'});
+
+        // === MEDICATION INTAKE (if visit has OFF → ON transition) ===
+        if (['t2off','t3off'].includes(visit)) {
+            steps.push({type:'header', label:'── Medication Intake'});
+            steps.push({type:'item', label:'med-intake', isMedTimer:true, noSync:true});
+            steps.push({type:'item', label:'UPDRS-pre',   modality:'clinical', noSync:true});
+        }
+
+        // === GILADI PROTOCOL ===
+        steps.push({type:'header', label:`── Giladi Protocol · ${medState.toUpperCase()}`});
+        // Single ECG/GSR block
+        steps.push({type:'item', label:'giladiprotocol', modality:'ecg/gsr', isBlockEcg:true, syncExpected:true});
+        // Per-task APDM + Video
+        GILADI_TASKS.forEach(g => {
+            steps.push({type:'item', label:g.label, modality:'apdm+video', syncExpected:true});
+        });
+
+        // === CONTINUOUS WALK ===
+        steps.push({type:'header', label:`── Continuous Walk · ${medState.toUpperCase()}`});
+        steps.push({type:'item', label:'STDT', modality:'ecg/gsr', isBlockEcg:true, syncExpected:true});
+        CONT_WALK_TASKS.forEach(c => {
+            steps.push({type:'item', label:c.label, modality:'apdm+video', dur:c.dur||0, syncExpected:true});
+        });
+
+        // === AUGMENTED REALITY ===
+        steps.push({type:'header', label:`── Augmented Reality · ${medState.toUpperCase()}`});
+        steps.push({type:'item', label:'AR', modality:'ecg/gsr', isBlockEcg:true, syncExpected:true});
+        AR_TASKS.forEach(a => {
+            steps.push({type:'item', label:a.label, modality:'apdm+video', syncExpected:true});
+        });
+
+        return steps;
     }
 
-    function stepDisplayName(step) {
-        const sub = padSub(currentSubject);
-        const grp = currentGroup;
-        const ses = `ses0${currentVisit}`;
-        const med = (step.medFixed) ? step.medFixed : currentState;
-        if (step.noMed) {
-            return `antifreeze_sub${sub}-${grp}_${ses}_${step.label}`;
-        }
-        return `antifreeze_sub${sub}-${grp}_${ses}-${med}_${step.label}`;
+    let protocol = buildProtocol('t1on', 'on');
+
+    /* =====================================================================
+       BIDS NAMING
+    ====================================================================== */
+    const padSub = s => (s || '').replace(/\D/g,'').padStart(2,'0').substring(0,4) || '??';
+
+    function getBidsPrefix() {
+        return `AT-sub-${currentSite}${padSub(currentSubject)}_ses-${currentVisit}`;
+    }
+
+    // Full BIDS filename for a step
+    function stepBidsName(step) {
+        const prefix = getBidsPrefix();
+        const task = step.label;
+        return `${prefix}_task-${task}`;
     }
 
     function updateBidsUI() {
         const prefix = getBidsPrefix();
-        document.getElementById('bidsFullPreview').textContent = prefix;
-        document.getElementById('bidsHeaderPill').textContent = prefix + '_...';
-
-        const sb = document.getElementById('stateBadge');
-        sb.className = 'chip ' + (currentState==='off'?'chip-off':'chip-on');
-        sb.innerHTML = `<span class="chip-dot" style="background:${currentState==='off'?'var(--red)':'var(--green)'}"></span>${currentState.toUpperCase()}`;
-
-        document.getElementById('visitBadge').textContent = `Visit ${currentVisit} · ses0${currentVisit}`;
-        const sub = padSub(currentSubject);
-        document.getElementById('subBadge').textContent = currentSubject ? `sub-${sub}-${currentGroup}` : 'sub: —';
+        document.getElementById('bidsFullPreview').textContent = prefix + '_task-...';
+        document.getElementById('bidsHeaderPill').textContent  = prefix + '_...';
     }
 
-    // ── PROTOCOL ───────────────────────────────────────────────────────────
-    // step shape: { type:'item'|'header', label, dur:0, noMed:false, medFixed:'' }
-    // noMed: don't embed med status in name (protocol-level events)
-    // medFixed: always embed 'off' or 'on' regardless of dropdown
-
-    const giladi = [
-        {label:'stwalk'},{label:'dtwalk'},{label:'stcarr'},{label:'stturn'},
-        {label:'dtturn'},{label:'stshuf'},{label:'stagil'},{label:'stdoor'}
-    ];
-    const contWalk = [
-        {label:'2mstwalk',dur:120},{label:'2mdtwalk',dur:120},
-        {label:'lowwalk'},{label:'highwalk'},{label:'lowturn'},{label:'highturn'}
-    ];
-
-    function medBlock(med) {
-        return [
-            {type:'item', label:'vitals',          medFixed:med, dur:0},
-            {type:'item', label:'updrs3',           medFixed:med, dur:0},
-            {type:'header', label:`Gait Assessment · ${med.toUpperCase()}`},
-            ...giladi.map(g=>({type:'item', label:g.label, medFixed:med, dur:0})),
-            {type:'header', label:`Continuous Gait · ${med.toUpperCase()}`},
-            ...contWalk.map(c=>({type:'item', label:c.label, medFixed:med, dur:c.dur||0})),
-            {type:'header', label:`AR-Paradigm · ${med.toUpperCase()}`},
-            {type:'item', label:'ar-ecg-skincon', medFixed:med, dur:0},
-            {type:'item', label:'pupillometry',   medFixed:med, dur:0},
-            {type:'header', label:`MRI · ${med.toUpperCase()}`},
-            {type:'item', label:'mri-setup',  medFixed:med, dur:0},
-            {type:'item', label:'headscout',  medFixed:med, dur:0},
-            {type:'item', label:'t1',         medFixed:med, dur:0},
-            {type:'item', label:'rsfmri',     medFixed:med, dur:0},
-            {type:'item', label:'taskfmri',   medFixed:med, dur:0},
-        ];
-    }
-
-    function buildProtocol(visit) {
-        const v = parseInt(visit);
-        const structural = [];
-        if (v >= 2) {
-            structural.push({type:'header', label:'Structural Imaging'});
-            [{label:'sandwichnm'},{label:'tse'},{label:'diffusion'}]
-              .forEach(s=>structural.push({type:'item', label:s.label, noMed:true, dur:0}));
-        }
-        if (v === 3) structural.push({type:'item', label:'qsm', noMed:true, dur:0});
-
-        return [
-            {type:'header', label:'── Pre-Ingestion'},
-            ...(v===1 ? [{type:'item', label:'ecg-5min-rest', medFixed:'off', dur:300}] : []),
-            {type:'item', label:'ingestion-atomox-placebo', noMed:true, dur:0},
-            {type:'item', label:'vitals-pre-ingestion',     noMed:true, dur:0},
-            {type:'header', label:'── 1hr Waiting Period'},
-            {type:'item', label:'waiting-1hr',    noMed:true, dur:3600},
-            {type:'item', label:'vitals-1hr-post', noMed:true, dur:0},
-            {type:'header', label:'── OFF Block'},
-            ...medBlock('off'),
-            {type:'header', label:'── Dopaminergic Ingestion'},
-            {type:'item', label:'ingestion-dopamine', noMed:true, dur:0},
-            {type:'header', label:'── 45min Waiting Period'},
-            {type:'item', label:'waiting-45min',    noMed:true, dur:2700},
-            {type:'item', label:'vitals-post-dopa', noMed:true, dur:0},
-            {type:'header', label:'── ON Block'},
-            ...medBlock('on'),
-            ...structural,
-        ];
-    }
-
-    let protocol = buildProtocol('1');
-
-    // ── DOM ────────────────────────────────────────────────────────────────
+    /* =====================================================================
+       TRIAL LIST RENDERING
+    ====================================================================== */
     const $ = id => document.getElementById(id);
-    const startBtn       = $('startButton');
-    const stopBtn        = $('stopButton');
-    const exportBtn      = $('exportButton');
-    const trialList      = $('trialList');
-    const notesInput     = $('notesInput');
-    const customTagInput = $('customTagInput');
-    const addTagBtn      = $('addTagButton');
-    const removeTagBtn   = $('removeTagButton');
-    const discardLastBtn = $('discardLastButton');
-    const resetLogBtn    = $('resetLogButton');
-    const logBody        = $('logBody');
-    const emptyMsg       = $('emptyLogMessage');
-    const selText        = $('activeSelectionText');
-    const countdown      = $('countdownDisplay');
-    const activeDsp      = $('activeSelectionDisplay');
-    const selHeader      = $('selectionHeader');
-    const editToggle     = $('editModeToggle');
-    const stateSelect    = $('stateSelect');
-    const visitSelect    = $('visitSelect');
-    const groupSelect    = $('groupSelect');
-    const subjectInput   = $('subjectInput');
-    const discardModal   = $('discardModal');
-    const discardMBox    = $('discardModalContent');
-    const discardName    = $('discardTrialName');
-    const cancelDiscard  = $('cancelDiscardButton');
-    const confirmDiscard = $('confirmDiscardButton');
-    const resetModal     = $('confirmationModal');
-    const resetMBox      = $('modalContent');
-    const cancelReset    = $('cancelResetButton');
-    const confirmReset   = $('confirmResetButton');
+    const trialList = $('trialList');
 
-    // ── BELL ──────────────────────────────────────────────────────────────
-    function playBell() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [[880,0],[1109,.28],[880,.56],[1318,.84]].forEach(([f,t]) => {
-                const osc = ctx.createOscillator(), g = ctx.createGain();
-                osc.connect(g); g.connect(ctx.destination);
-                osc.type = 'sine'; osc.frequency.value = f;
-                const st = ctx.currentTime + t;
-                g.gain.setValueAtTime(0, st);
-                g.gain.linearRampToValueAtTime(.55, st+.02);
-                g.gain.exponentialRampToValueAtTime(.001, st+.7);
-                osc.start(st); osc.stop(st+.75);
-            });
-        } catch(e){}
-    }
-
-    // ── HELPERS ────────────────────────────────────────────────────────────
-    function fmt(s) {
-        const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
-        if (h>0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-        return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-    }
-    const nowISO = () => new Date().toISOString().replace('T',' ').substring(0,23);
-
-    function updateClock() { $('realTimeClock').textContent = new Date().toTimeString().slice(0,8); }
-
-    // ── TRIAL LIST ─────────────────────────────────────────────────────────
     function populateTrialList() {
         trialList.innerHTML = '';
-        selectedEl = null; selText.textContent = '—';
-
         protocol.forEach((step, idx) => {
             const li = document.createElement('li');
             if (step.type === 'header') {
                 li.className = 'trial-item section-header';
                 li.textContent = step.label;
             } else {
-                const dn    = stepDisplayName(step);
-                const short = step.label;          // short form for UI display
-                li.className = 'trial-item' + (step.dur>0?' timed':'');
+                li.className = 'trial-item';
                 li.dataset.idx   = idx;
-                li.dataset.dn    = dn;              // full BIDS — used only for log
-                li.dataset.short = short;           // short label — shown in list & active display
-                li.dataset.dur   = step.dur||0;
-                li.innerHTML = `<span class="tdot"></span><span class="tname">${short}</span>`
-                    + (step.dur>0 ? `<span class="timed-badge">${fmt(step.dur)}</span>` : '');
+                li.dataset.label = step.label;
+                li.dataset.dur   = step.dur || 0;
+                li.dataset.isMedTimer   = step.isMedTimer   ? '1' : '';
+                li.dataset.isBlockEcg   = step.isBlockEcg   ? '1' : '';
+                li.dataset.syncExpected = step.syncExpected ? '1' : '';
+                li.dataset.noSync       = step.noSync       ? '1' : '';
+                li.dataset.modality     = step.modality || '';
+
+                let badge = '';
+                if (step.syncExpected) badge = '<span class="sync-badge">sync</span>';
+                if (step.isMedTimer)   badge = '<span class="sync-badge" style="background:var(--amber-lt);color:var(--amber);border-color:var(--orange-bd);">💊 bg-timer</span>';
+
+                li.innerHTML = `<span>${step.label}</span>${badge}`;
                 li.addEventListener('click', handleClick);
             }
             trialList.appendChild(li);
         });
-        const first = trialList.querySelector('li:not(.section-header)');
-        if (first) first.click();
-        btnStates();
+        updateActiveDisplay();
     }
 
-    function refreshNames() {
-        trialList.querySelectorAll('li.trial-item:not(.section-header)').forEach(li => {
-            const idx = parseInt(li.dataset.idx);
-            const step = protocol[idx];
-            if (!step) return;
-            // Update full BIDS name silently in dataset (for log) — list text stays as short label
-            li.dataset.dn = stepDisplayName(step);
-            // Short label is fixed from step.label; no visual change needed
-        });
-        // Active display also stays as short label
-        if (selectedEl) selText.textContent = selectedEl.dataset.short || selectedEl.dataset.dn || '';
-        updateBidsUI();
-    }
-
-    // ── CLICK / START / STOP ───────────────────────────────────────────────
     function handleClick(e) {
         if (isTiming) return;
-        const el = e.currentTarget;
+        const li = e.currentTarget;
         if (selectedEl) selectedEl.classList.remove('selected');
-        el.classList.add('selected');
-        selectedEl = el;
-        selText.textContent = el.dataset.short || el.dataset.dn || el.textContent.trim();
-        btnStates();
+        selectedEl = li;
+        selectedEl.classList.add('selected');
+        updateActiveDisplay();
     }
 
+    function updateActiveDisplay() {
+        if (selectedEl) {
+            $('activeSelectionText').textContent = stepBidsName({ label: selectedEl.dataset.label });
+        } else {
+            $('activeSelectionText').textContent = '—';
+        }
+    }
+
+    /* =====================================================================
+       MED BACKGROUND TIMER
+    ====================================================================== */
+    function startMedTimer() {
+        medTimerRunning = true;
+        medTimerStart   = new Date();
+        medIngestionTime = medTimerStart;
+        $('medTimerBanner').classList.remove('hidden');
+        $('medTimerStart').textContent = 'Started: ' + fmtTime(medTimerStart);
+        medTimerInterval = setInterval(tickMedTimer, 1000);
+        // Log the medication intake event
+        logEntry({
+            bidsName: stepBidsName({ label: 'med-intake' }),
+            modality: '—',
+            event:    'Med Intake Start',
+            notes:    $('notesInput').value,
+        });
+    }
+
+    function tickMedTimer() {
+        const elapsed = Math.floor((Date.now() - medTimerStart.getTime()) / 1000);
+        $('medTimerDisplay').textContent = fmtElapsed(elapsed);
+    }
+
+    function stopMedTimer() {
+        if (!medTimerRunning) return;
+        clearInterval(medTimerInterval);
+        medTimerRunning = false;
+        const elapsed = Math.floor((Date.now() - medTimerStart.getTime()) / 1000);
+        $('medTimerBanner').classList.add('hidden');
+        logEntry({
+            bidsName: stepBidsName({ label: 'med-intake' }),
+            modality: '—',
+            event:    'Med Intake End',
+            notes:    `Duration: ${fmtElapsed(elapsed)}`,
+        });
+    }
+
+    $('stopMedTimerBtn').addEventListener('click', stopMedTimer);
+
+    /* =====================================================================
+       UPDRS MODAL
+    ====================================================================== */
+    function showUpdrsModal() {
+        const now = new Date();
+        $('updrsIntakeTime').textContent = medIngestionTime ? fmtTime(medIngestionTime) : 'Not recorded';
+        $('updrsStartTime').textContent  = fmtTime(now);
+        if (medIngestionTime) {
+            const mins = Math.round((now - medIngestionTime) / 60000);
+            $('updrsResult').textContent = `${mins} min since last dose`;
+        } else {
+            $('updrsResult').textContent = 'Med intake time not available';
+        }
+        $('updrsModal').classList.remove('hidden');
+    }
+
+    $('confirmUpdrsButton').addEventListener('click', () => {
+        $('updrsModal').classList.add('hidden');
+        // Proceed with normal start flow
+        doStart();
+    });
+
+    /* =====================================================================
+       SPECIALIST TIMERS: MRI + PUPILS
+    ====================================================================== */
+    function setupSpecTimer({ startBtn, stopBtn, card, displayEl, runningRef, startRef, intervalRef, secRef, isRunningKey, startKey, intervalKey, secKey, className }) {
+        document.getElementById(startBtn).addEventListener('click', () => {
+            if (window[isRunningKey]) return;
+            window[isRunningKey]  = true;
+            window[startKey]      = new Date();
+            window[secKey]        = 0;
+            document.getElementById(card).classList.add('running');
+            document.getElementById(startBtn).disabled = true;
+            document.getElementById(stopBtn).disabled  = false;
+            document.getElementById(displayEl).textContent = '00:00:00';
+            window[intervalKey] = setInterval(() => {
+                window[secKey]++;
+                document.getElementById(displayEl).textContent = fmtElapsed(window[secKey]);
+            }, 1000);
+            logEntry({
+                bidsName: getBidsPrefix() + '_' + (startBtn === 'mriStartBtn' ? 'mri' : 'pupil') + '-session',
+                modality: startBtn === 'mriStartBtn' ? 'MRI' : 'Pupil',
+                event:    'Start',
+                notes:    '',
+            });
+        });
+        document.getElementById(stopBtn).addEventListener('click', () => {
+            if (!window[isRunningKey]) return;
+            clearInterval(window[intervalKey]);
+            window[isRunningKey] = false;
+            document.getElementById(card).classList.remove('running');
+            document.getElementById(startBtn).disabled = false;
+            document.getElementById(stopBtn).disabled  = true;
+            logEntry({
+                bidsName: getBidsPrefix() + '_' + (stopBtn === 'mriStopBtn' ? 'mri' : 'pupil') + '-session',
+                modality: stopBtn === 'mriStopBtn' ? 'MRI' : 'Pupil',
+                event:    'Stop',
+                notes:    `Duration: ${fmtElapsed(window[secKey])}`,
+            });
+        });
+    }
+
+    // Use window globals for spec timers to keep code clean
+    window._mriRunning = false; window._mriSec = 0;
+    window._pupilRunning = false; window._pupilSec = 0;
+
+    setupSpecTimer({ startBtn:'mriStartBtn', stopBtn:'mriStopBtn', card:'mriTimerCard', displayEl:'mriTimerDisplay', isRunningKey:'_mriRunning', startKey:'_mriStart', intervalKey:'_mriInterval', secKey:'_mriSec' });
+    setupSpecTimer({ startBtn:'pupilStartBtn', stopBtn:'pupilStopBtn', card:'pupilTimerCard', displayEl:'pupilTimerDisplay', isRunningKey:'_pupilRunning', startKey:'_pupilStart', intervalKey:'_pupilInterval', secKey:'_pupilSec' });
+
+    /* =====================================================================
+       START / STOP
+    ====================================================================== */
     function handleStart() {
         if (!selectedEl) return;
-        isTiming = true;
-        currentTrialName = selectedEl.dataset.dn || selectedEl.textContent.trim(); // full BIDS → log
-        // Active display keeps the short label already shown
-        logData.push({ trial:currentTrialName, shortLabel: selectedEl.dataset.short || currentTrialName,
-            state:currentState.toUpperCase(),
-            visit:`Visit ${currentVisit}`, event:'Start',
-            notes:notesInput.value.trim(), timestamp:nowISO() });
-        // Keep the notes field open so the user can add/edit notes during the trial (captured on Stop)
-        renderLog();
+        const isMedTimer = selectedEl.dataset.isMedTimer === '1';
 
-        const dur = parseInt(selectedEl.dataset.dur||0);
-        if (dur>0) { remaining=dur; startCountdown(); }
-        btnStates();
+        if (isMedTimer) {
+            startMedTimer();
+            // Mark as done, advance selection
+            selectedEl.classList.add('done');
+            advanceSelection();
+            return;
+        }
+
+        // UPDRS check: if label contains 'UPDRS' and we have a med intake time
+        if (selectedEl.dataset.label.toLowerCase().includes('updrs') && medIngestionTime) {
+            showUpdrsModal();
+            return;  // doStart() called from modal confirm
+        }
+
+        doStart();
+    }
+
+    function doStart() {
+        isTiming = true;
+        startTimestamp = new Date();
+        currentTrialName = stepBidsName({ label: selectedEl.dataset.label });
+
+        logEntry({
+            bidsName: currentTrialName,
+            modality: selectedEl.dataset.modality || '—',
+            event:    'Start',
+            notes:    $('notesInput').value,
+            syncExpected: selectedEl.dataset.syncExpected === '1',
+        });
+
+        if (parseInt(selectedEl.dataset.dur) > 0) {
+            remaining = parseInt(selectedEl.dataset.dur);
+            startCountdown();
+        }
+        updateUIStates();
     }
 
     function startCountdown() {
-        activeDsp.classList.add('timer-active');
-        selHeader.textContent = 'Time Remaining';
-        countdown.classList.remove('hidden');
-        countdown.textContent = fmt(remaining);
+        $('activeSelectionDisplay').classList.add('timer-active');
+        $('countdownDisplay').classList.remove('hidden');
+        $('countdownDisplay').textContent = remaining + "s";
         timerInt = setInterval(() => {
             remaining--;
-            countdown.textContent = fmt(remaining);
-            if (remaining<=0) { clearInterval(timerInt); playBell(); handleStop(); }
+            $('countdownDisplay').textContent = remaining + "s";
+            if (remaining <= 0) { clearInterval(timerInt); handleStop(); }
         }, 1000);
     }
 
     function handleStop() {
+        if (!isTiming) return;
         clearInterval(timerInt);
         isTiming = false;
-        activeDsp.classList.remove('timer-active');
-        selHeader.textContent = 'Currently Selected';
-        countdown.classList.add('hidden');
-        countdown.textContent = '';
+        $('activeSelectionDisplay').classList.remove('timer-active');
+        $('countdownDisplay').classList.add('hidden');
 
-        logData.push({ trial:currentTrialName, shortLabel: selectedEl ? (selectedEl.dataset.short || currentTrialName) : currentTrialName,
-            state:currentState.toUpperCase(),
-            visit:`Visit ${currentVisit}`, event:'Stop', notes: notesInput.value.trim(), timestamp:nowISO() });
-        notesInput.value = '';
-        renderLog();
+        const duration = startTimestamp ? Math.round((Date.now() - startTimestamp.getTime()) / 1000) : null;
 
-        // Auto-advance (select only, don't start)
-        if (selectedEl) {
-            const all = Array.from(trialList.querySelectorAll('li.trial-item:not(.section-header)'));
-            const i = all.indexOf(selectedEl);
-            if (i>=0 && i<all.length-1) {
-                const nxt = all[i+1];
-                selectedEl.classList.remove('selected');
-                nxt.classList.add('selected');
-                selectedEl = nxt;
-                selText.textContent = nxt.dataset.short || nxt.dataset.dn || nxt.textContent.trim();
-                nxt.scrollIntoView({behavior:'smooth',block:'nearest'});
-            }
-        }
-        btnStates();
+        logEntry({
+            bidsName: currentTrialName,
+            modality: selectedEl ? (selectedEl.dataset.modality || '—') : '—',
+            event:    'Stop',
+            notes:    $('notesInput').value,
+            duration: duration,
+        });
+
+        if (selectedEl) selectedEl.classList.add('done');
+        advanceSelection();
+        updateUIStates();
+        refreshQC();
     }
 
-    // ── LOG ────────────────────────────────────────────────────────────────
+    function advanceSelection() {
+        // Auto-select next non-header non-done item
+        const items = [...trialList.querySelectorAll('.trial-item:not(.section-header):not(.done)')];
+        if (items.length > 0) {
+            if (selectedEl) selectedEl.classList.remove('selected');
+            selectedEl = items[0];
+            selectedEl.classList.add('selected');
+            updateActiveDisplay();
+        }
+    }
+
+    function updateUIStates() {
+        $('startButton').disabled = isTiming;
+        $('stopButton').disabled  = !isTiming;
+        trialList.style.pointerEvents = isTiming ? 'none' : 'auto';
+    }
+
+    /* =====================================================================
+       LOG
+    ====================================================================== */
+    function logEntry(obj) {
+        const entry = {
+            bidsName:  obj.bidsName || '—',
+            modality:  obj.modality || '—',
+            session:   `ses-${currentVisit}`,
+            event:     obj.event,
+            notes:     obj.notes || '',
+            timestamp: new Date().toISOString(),
+            duration:  obj.duration != null ? obj.duration + 's' : '',
+            syncExpected: obj.syncExpected || false,
+        };
+        logData.push(entry);
+        renderLog();
+    }
+
     function renderLog() {
+        const logBody = $('logBody');
         logBody.innerHTML = '';
-        emptyMsg.style.display = logData.length?'none':'block';
-        exportBtn.disabled = !logData.length;
+        $('emptyLogMessage').style.display = logData.length ? 'none' : 'block';
         logData.forEach(e => {
             const tr = document.createElement('tr');
-            const sc = e.state==='OFF'?'chip chip-off':(e.state==='ON'?'chip chip-on':'chip chip-sub');
+            const syncBadge = e.syncExpected ? '<span style="font-size:.6rem;background:var(--teal-lt);color:var(--teal);border:1px solid var(--teal-bd);border-radius:3px;padding:1px 4px;margin-left:4px;">sync</span>' : '';
             tr.innerHTML = `
-                <td class="mono" style="font-size:.7rem;color:var(--text)">${e.trial}</td>
-                <td><span class="${sc}" style="font-size:.58rem;padding:.1rem .42rem">${e.state}</span></td>
-                <td style="font-size:.73rem">${e.visit}</td>
-                <td class="${e.event==='Start'?'ev-start':'ev-stop'}">${e.event}</td>
-                <td style="color:var(--text-muted)">${e.notes||''}</td>
-                <td class="mono" style="font-size:.68rem;color:var(--text-muted)">${e.timestamp}</td>`;
+                <td>${e.bidsName}${syncBadge}</td>
+                <td>${e.modality}</td>
+                <td>${e.session}</td>
+                <td>${e.event}</td>
+                <td>${e.notes}</td>
+                <td>${e.timestamp.slice(11,19)}</td>
+                <td>${e.duration}</td>`;
             logBody.appendChild(tr);
         });
-        btnStates();
+        // Auto-scroll to bottom
+        const scroll = logBody.closest('.log-scroll');
+        if (scroll) scroll.scrollTop = scroll.scrollHeight;
     }
 
-    function btnStates() {
-        startBtn.disabled = isTiming || !selectedEl;
-        stopBtn.disabled  = !isTiming;
-        trialList.style.opacity = isTiming?'.5':'1';
-        trialList.style.pointerEvents = isTiming?'none':'';
-        // Update notes label hint dynamically in btnStates
-        const notesLabel = notesInput.previousElementSibling;
-        if (notesLabel && notesLabel.classList.contains('field-lbl')) {
-            notesLabel.textContent = isTiming ? 'Notes (saved on Stop)' : 'Notes (optional)';
-        }
-        editToggle.disabled = isTiming;
-        stateSelect.disabled = isTiming;
-        visitSelect.disabled = isTiming;
-        groupSelect.disabled = isTiming;
-        subjectInput.disabled = isTiming;
-        discardLastBtn.disabled = !logData.some(e=>e.event==='Stop') || isTiming;
+    /* =====================================================================
+       QC PANEL
+    ====================================================================== */
+    const QC_EXPECTED = [
+        { label: 'Resting Vitals',       modality:'ECG/GSR',    count:3,   syncReq:false },
+        { label: 'Giladi – APDM',        modality:'APDM',       count:8,   syncReq:true  },
+        { label: 'Giladi – Video',       modality:'Video',      count:8,   syncReq:true  },
+        { label: 'Giladi – ECG/GSR',     modality:'ECG/GSR',    count:1,   syncReq:true  },
+        { label: 'Cont Walk – APDM',     modality:'APDM',       count:2,   syncReq:true  },
+        { label: 'Cont Walk – Video',    modality:'Video',      count:2,   syncReq:true  },
+        { label: 'Cont Walk – ECG/GSR',  modality:'ECG/GSR',    count:1,   syncReq:true  },
+        { label: 'AR – APDM',            modality:'APDM',       count:6,   syncReq:true  },
+        { label: 'AR – Video',           modality:'Video',      count:6,   syncReq:true  },
+        { label: 'AR – ECG/GSR',         modality:'ECG/GSR',    count:1,   syncReq:true  },
+    ];
+
+    function refreshQC() {
+        const grid = $('qcGrid');
+        // Count stop events per modality group as proxy for collected files
+        const stopEvents = logData.filter(e => e.event === 'Stop');
+        const giladiStops   = stopEvents.filter(e => GILADI_TASKS.some(g => e.bidsName.includes(`task-${g.label}`)));
+        const contWalkStops = stopEvents.filter(e => CONT_WALK_TASKS.filter(c=>!c.dur || c.dur>0).some(c => e.bidsName.includes(`task-${c.label}`)));
+        const arStops       = stopEvents.filter(e => AR_TASKS.some(a => e.bidsName.includes(`task-${a.label}`)));
+        const vitalsStops   = stopEvents.filter(e => ['vitals-preIP','vitals-postIP','vitals-on'].some(v => e.bidsName.includes(`task-${v}`)));
+
+        const counts = [
+            vitalsStops.length,
+            giladiStops.length,   // APDM
+            giladiStops.length,   // Video (same tasks)
+            stopEvents.filter(e => e.bidsName.includes('giladiprotocol')).length,
+            contWalkStops.filter(c => c.bidsName.includes('2mwalk') || c.bidsName.includes('walk') || c.bidsName.includes('turn')).length,
+            contWalkStops.filter(c => c.bidsName.includes('2mwalk') || c.bidsName.includes('walk') || c.bidsName.includes('turn')).length,
+            stopEvents.filter(e => e.bidsName.includes('STDT')).length,
+            arStops.length,
+            arStops.length,
+            stopEvents.filter(e => e.bidsName.includes('task-AR')).length,
+        ];
+
+        grid.innerHTML = '';
+        QC_EXPECTED.forEach((item, i) => {
+            const got = counts[i] || 0;
+            const ok  = got >= item.count;
+            const any = got > 0;
+            const dotClass = ok ? 'ok' : (any ? 'partial' : 'miss');
+            const div = document.createElement('div');
+            div.className = 'qc-item';
+            div.innerHTML = `
+                <div class="qc-dot ${dotClass}"></div>
+                <span class="qc-label">${item.label}${item.syncReq ? ' 🔗' : ''}</span>
+                <span class="qc-count">${got}/${item.count}</span>`;
+            grid.appendChild(div);
+        });
     }
 
-    function lastCompletedTrial() {
-        // returns { bids, short } for the most recent Stop
-        for (let i=logData.length-1;i>=0;i--) {
-            if (logData[i].event==='Stop') return { bids: logData[i].trial, short: logData[i].shortLabel || logData[i].trial };
-        }
-        return null;
-    }
+    $('refreshQcBtn').addEventListener('click', refreshQC);
+    refreshQC();
 
-    // ── MODALS ─────────────────────────────────────────────────────────────
-    function openModal(ov, box) {
-        ov.classList.remove('hidden');
-        requestAnimationFrame(()=>{ ov.style.opacity='1'; box.style.transform='scale(1)'; });
-    }
-    function closeModal(ov, box) {
-        ov.style.opacity='0'; box.style.transform='scale(.95)';
-        setTimeout(()=>ov.classList.add('hidden'),200);
-    }
-
-    // ── INIT ───────────────────────────────────────────────────────────────
-    setInterval(updateClock, 1000); updateClock();
-    populateTrialList(); updateBidsUI(); renderLog();
-
-    sortable = new Sortable(trialList, {
-        animation: 150, ghostClass:'sortable-ghost',
-        filter:'.section-header', disabled:true,
+    /* =====================================================================
+       CUSTOM TAGS
+    ====================================================================== */
+    $('addTagButton').addEventListener('click', () => {
+        const val = $('customTagInput').value.trim();
+        if (!val) return;
+        protocol.push({ type:'item', label: val, modality:'custom' });
+        populateTrialList();
+        $('customTagInput').value = '';
     });
 
-    // ── LISTENERS ──────────────────────────────────────────────────────────
-    startBtn.addEventListener('click', handleStart);
-    stopBtn.addEventListener('click', handleStop);
-
-    stateSelect.addEventListener('change', e=>{
-        currentState=e.target.value; refreshNames();
-    });
-    visitSelect.addEventListener('change', e=>{
-        currentVisit=e.target.value;
-        protocol=buildProtocol(currentVisit);
-        populateTrialList(); updateBidsUI();
-    });
-    groupSelect.addEventListener('change', e=>{ currentGroup=e.target.value; refreshNames(); });
-    subjectInput.addEventListener('input', e=>{
-        currentSubject=e.target.value.replace(/\D/g,'');
-        e.target.value=currentSubject; refreshNames();
-    });
-
-    addTagBtn.addEventListener('click', ()=>{
-        const val=customTagInput.value.trim(); if(!val) return;
-        const step={type:'item', label:val, dur:0, custom:true};
-        protocol.push(step);
-        const dn = stepDisplayName(step);
-        const li = document.createElement('li');
-        li.className='trial-item'; li.dataset.idx=protocol.length-1;
-        li.dataset.dn=dn; li.dataset.short=val; li.dataset.dur=0;
-        li.innerHTML=`<span class="tdot"></span><span class="tname">${val}</span>`;
-        li.addEventListener('click', handleClick);
-        trialList.appendChild(li); li.click();
-        customTagInput.value='';
-    });
-
-    removeTagBtn.addEventListener('click', ()=>{
+    $('removeTagButton').addEventListener('click', () => {
         if (!selectedEl) return;
-        const idx=parseInt(selectedEl.dataset.idx);
-        if (!isNaN(idx)) protocol[idx]=null; // mark removed
-        selectedEl.remove(); selectedEl=null;
-        selText.textContent='—';
-        const first=trialList.querySelector('li:not(.section-header)');
-        if (first) first.click(); else btnStates();
-    });
-
-    editToggle.addEventListener('change', e=>{
-        sortable.option('disabled',!e.target.checked);
-        trialList.style.outline=e.target.checked?'2px dashed #f97316':'';
-        trialList.style.outlineOffset='2px';
-    });
-
-    discardLastBtn.addEventListener('click', ()=>{
-        const last=lastCompletedTrial(); if(!last) return;
-        discardName.textContent = last.short;   // show friendly short name in modal
-        openModal(discardModal,discardMBox);
-    });
-    cancelDiscard.addEventListener('click', ()=>closeModal(discardModal,discardMBox));
-    confirmDiscard.addEventListener('click', ()=>{
-        if (logData.length>=2) {
-            const a=logData[logData.length-1], b=logData[logData.length-2];
-            if (a.event==='Stop'&&b.event==='Start'&&a.trial===b.trial) logData.splice(-2,2);
+        const idx = parseInt(selectedEl.dataset.idx);
+        if (!isNaN(idx)) {
+            protocol.splice(idx, 1);
+            selectedEl = null;
+            populateTrialList();
         }
-        renderLog(); closeModal(discardModal,discardMBox);
     });
 
-    resetLogBtn.addEventListener('click', ()=>openModal(resetModal,resetMBox));
-    cancelReset.addEventListener('click',  ()=>closeModal(resetModal,resetMBox));
-    confirmReset.addEventListener('click', ()=>{
-        logData=[]; renderLog();
-        if (isTiming) handleStop();
-        closeModal(resetModal,resetMBox);
+    /* =====================================================================
+       CONFIG LISTENERS
+    ====================================================================== */
+    $('subjectInput').addEventListener('input', e => {
+        currentSubject = e.target.value;
+        updateBidsUI();
+        populateTrialList();
     });
 
-    exportBtn.addEventListener('click', ()=>{
-        const hdr='BIDSTaskID,State,Visit,Event,Notes,Timestamp\n';
-        const rows=logData.map(e=>`"${e.trial}","${e.state}","${e.visit}","${e.event}","${(e.notes||'').replace(/"/g,'""')}","${e.timestamp}"`).join('\n');
-        const blob=new Blob([hdr+rows],{type:'text/csv'});
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        const sub=padSub(currentSubject);
-        const dt=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-        a.href=url; a.download=`antifreeze_sub${sub}-${currentGroup}_ses0${currentVisit}_log_${dt}.csv`;
-        a.click(); URL.revokeObjectURL(url);
+    $('visitSelect').addEventListener('change', e => {
+        currentVisit = e.target.value;
+        // Auto-set med state from visit name
+        const inferredState = currentVisit.endsWith('on') ? 'on' : 'off';
+        currentMedState = inferredState;
+        $('stateSelect').value = inferredState;
+        protocol = buildProtocol(currentVisit, currentMedState);
+        populateTrialList();
+        updateBidsUI();
     });
 
-    [discardModal,resetModal].forEach(ov=>{
-        ov.addEventListener('click', e=>{
-            if (e.target===ov) closeModal(ov, ov.querySelector('.modal-box'));
+    $('stateSelect').addEventListener('change', e => {
+        currentMedState = e.target.value;
+        protocol = buildProtocol(currentVisit, currentMedState);
+        populateTrialList();
+        updateBidsUI();
+    });
+
+    // Site buttons
+    document.querySelectorAll('.site-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.site-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentSite = btn.dataset.site;
+            updateBidsUI();
+            populateTrialList();
         });
     });
 
-    // Live-update the notes for the active 'Start' event
-    notesInput.addEventListener('input', (e) => {
-        if (isTiming && logData.length > 0) {
-            // 1. Update the underlying data array
-            const lastEntry = logData[logData.length - 1];
-            if (lastEntry.event === 'Start') {
-                lastEntry.notes = e.target.value;
-                
-                // 2. Live-update the table cell without redrawing the whole table 
-                // (to prevent flickering or losing scroll position)
-                const rows = logBody.querySelectorAll('tr');
-                if (rows.length > 0) {
-                    const lastRow = rows[rows.length - 1];
-                    const notesCell = lastRow.children[4]; // The 5th column is Notes
-                    notesCell.textContent = e.target.value;
-                }
-            }
-        }
+    /* =====================================================================
+       MAIN BUTTONS
+    ====================================================================== */
+    $('startButton').addEventListener('click', handleStart);
+    $('stopButton').addEventListener('click', handleStop);
+
+    /* =====================================================================
+       DISCARD / RESET
+    ====================================================================== */
+    $('discardLastButton').addEventListener('click', () => {
+        if (!logData.length) return;
+        $('discardTrialName').textContent = logData[logData.length-1].bidsName;
+        $('discardModal').classList.remove('hidden');
+    });
+    $('cancelDiscardButton').addEventListener('click', () => $('discardModal').classList.add('hidden'));
+    $('confirmDiscardButton').addEventListener('click', () => {
+        logData.pop();
+        renderLog();
+        $('discardModal').classList.add('hidden');
     });
 
-});
+    $('resetLogButton').addEventListener('click', () => $('confirmationModal').classList.remove('hidden'));
+    $('cancelResetButton').addEventListener('click', () => $('confirmationModal').classList.add('hidden'));
+    $('confirmResetButton').addEventListener('click', () => {
+        logData = [];
+        renderLog();
+        refreshQC();
+        $('confirmationModal').classList.add('hidden');
+    });
+
+    /* =====================================================================
+       EXPORT
+    ====================================================================== */
+    $('exportButton').addEventListener('click', () => {
+        let csv = "BIDS_Filename,Modality,Session,Event,Notes,Timestamp,Duration\n";
+        logData.forEach(d => {
+            csv += `"${d.bidsName}","${d.modality}","${d.session}","${d.event}","${d.notes}","${d.timestamp}","${d.duration}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        const sub = padSub(currentSubject);
+        a.download = `AT-sub-${currentSite}${sub}_ses-${currentVisit}_synclog.csv`;
+        a.click();
+    });
+
+    /* =====================================================================
+       CLOCK & HELPERS
+    ====================================================================== */
+    setInterval(() => $('realTimeClock').textContent = new Date().toLocaleTimeString(), 1000);
+
+    function fmtTime(d) {
+        return d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+    }
+    function fmtElapsed(s) {
+        const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+        return [h,m,sec].map(x=>String(x).padStart(2,'0')).join(':');
+    }
+
+    /* =====================================================================
+       INIT
+    ====================================================================== */
+    updateBidsUI();
+    populateTrialList();
+    updateUIStates();
+
+}); // end DOMContentLoaded
 </script>
 </body>
 </html>
