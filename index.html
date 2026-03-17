@@ -934,9 +934,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('cancelDiscardButton').addEventListener('click', () => $('discardModal').classList.add('hidden'));
     $('confirmDiscardButton').addEventListener('click', () => {
-        logData.pop();
+        const discarded = logData.pop();
         renderLog();
+        refreshQC();
         $('discardModal').classList.add('hidden');
+
+        // Restore the discarded step as selected and un-mark it as done
+        if (discarded) {
+            // Find the trial-item whose bidsName matches the discarded entry
+            const items = [...trialList.querySelectorAll('.trial-item:not(.section-header)')];
+            const match = items.find(li => stepBidsName({ label: li.dataset.label }) === discarded.bidsName);
+            if (match) {
+                // Un-done it
+                match.classList.remove('done');
+                // Re-select it
+                if (selectedEl) selectedEl.classList.remove('selected');
+                selectedEl = match;
+                selectedEl.classList.add('selected');
+                updateActiveDisplay();
+                // Scroll it into view
+                selectedEl.scrollIntoView({ block: 'nearest' });
+            }
+        }
     });
 
     $('resetLogButton').addEventListener('click', () => $('confirmationModal').classList.remove('hidden'));
