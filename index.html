@@ -461,8 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {label:'stagil'}, {label:'stdoor'}
     ];
     const CONT_WALK_TASKS = [
-        {label:'st2mwalk', dur:120}, {label:'dt2mwalk', dur:120},
-        {label:'lowwalk'}, {label:'highwalk'}, {label:'lowturn'}, {label:'highturn'}
+        {label:'st2mwalk', dur:120}, {label:'dt2mwalk', dur:120}
     ];
     const AR_TASKS = [
         {label:'arltfpwalk'}, {label:'arlt2mwalk'}, {label:'arhtfpwalk'},
@@ -475,11 +474,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Vitals removed — not needed in sync app
 
-        // === MEDICATION INTAKE (if visit has OFF → ON transition) ===
-        if (['t2off','t3off'].includes(visit)) {
-            steps.push({type:'header', label:'── Medication Intake'});
+        // === MEDICATION INTAKE (only at start of ON sessions for Visit 2/3) ===
+        if (['t2on','t3on'].includes(visit)) {
+            steps.push({type:'header', label:'── Medication Intake & UPDRS'});
             steps.push({type:'item', label:'med-intake', isMedTimer:true, noSync:true});
-            steps.push({type:'item', label:'UPDRS-pre',   modality:'clinical', noSync:true});
+            steps.push({type:'item', label:'UPDRS-pre', modality:'clinical', noSync:true});
         }
 
         // === GILADI PROTOCOL ===
