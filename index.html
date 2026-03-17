@@ -488,23 +488,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // === GILADI PROTOCOL ===
         steps.push({type:'header', label:`── Giladi Protocol · ${medState.toUpperCase()}`});
-        // Single ECG/GSR block
-        steps.push({type:'item', label:'giladiprotocol', modality:'ecg/gsr', isBlockEcg:true, syncExpected:true});
-        // Per-task APDM + Video
         GILADI_TASKS.forEach(g => {
             steps.push({type:'item', label:g.label, modality:'apdm+video', syncExpected:true});
         });
 
         // === CONTINUOUS WALK ===
         steps.push({type:'header', label:`── Continuous Walk · ${medState.toUpperCase()}`});
-        steps.push({type:'item', label:'STDT', modality:'ecg/gsr', isBlockEcg:true, syncExpected:true});
         CONT_WALK_TASKS.forEach(c => {
             steps.push({type:'item', label:c.label, modality:'apdm+video', dur:c.dur||0, syncExpected:true});
         });
 
         // === AUGMENTED REALITY ===
         steps.push({type:'header', label:`── Augmented Reality · ${medState.toUpperCase()}`});
-        steps.push({type:'item', label:'AR', modality:'ecg/gsr', isBlockEcg:true, syncExpected:true});
         AR_TASKS.forEach(a => {
             steps.push({type:'item', label:a.label, modality:'apdm+video', syncExpected:true});
         });
