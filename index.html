@@ -112,6 +112,10 @@
         #activeSelectionText { font-family: 'IBM Plex Mono'; font-weight: 600; font-size: .9rem; }
         #countdownDisplay { font-family: 'IBM Plex Mono'; font-size: 1.2rem; color: var(--red); font-weight: 600; margin-top: 4px; }
 
+        /* TRIAL CONTROL TWO-COLUMN LAYOUT */
+        .trial-body { display: grid; grid-template-columns: 1fr 280px; gap: 1rem; margin-top: .75rem; align-items: start; }
+        .trial-controls { display: flex; flex-direction: column; }
+
         /* TRIAL LIST */
         #trialList { list-style: none; border: 1px solid var(--border); border-radius: var(--r-sm); max-height: 300px; overflow-y: auto; background: #fafbfd; }
         .trial-item { padding: .44rem .9rem; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .45rem; font-family: 'IBM Plex Mono'; font-size: .8rem; }
@@ -309,24 +313,35 @@
 
     <!-- TRIAL CONTROL CARD -->
     <div class="card">
+        <!-- CURRENTLY SELECTED — full width on top -->
         <div id="activeSelectionDisplay">
             <span id="selectionHeader" class="field-lbl">Currently Selected</span>
             <div id="activeSelectionText" class="mono" style="font-weight:600;">—</div>
             <div id="countdownDisplay" class="hidden"></div>
         </div>
-        <ul id="trialList"></ul>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <input type="text" id="customTagInput" placeholder="Custom step name..." style="flex:1">
-            <button id="addTagButton" class="btn btn-blue">+ Add</button>
-            <button id="removeTagButton" class="btn btn-ghost">Remove</button>
-        </div>
-        <div style="margin-top:12px;">
-            <div class="field-lbl">Notes (optional)</div>
-            <textarea id="notesInput" rows="2" placeholder="Notes for this session..."></textarea>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;">
-            <button id="startButton" class="btn btn-start">▶ START</button>
-            <button id="stopButton"  class="btn btn-stop">■ STOP</button>
+        <!-- TWO-COLUMN BODY -->
+        <div class="trial-body">
+            <!-- LEFT: trial list -->
+            <ul id="trialList"></ul>
+            <!-- RIGHT: controls -->
+            <div class="trial-controls">
+                <div>
+                    <div class="field-lbl">Custom Step</div>
+                    <div style="display:flex; gap:6px; margin-top:4px;">
+                        <input type="text" id="customTagInput" placeholder="Step name..." style="flex:1; min-width:0;">
+                        <button id="addTagButton" class="btn btn-blue">+ Add</button>
+                        <button id="removeTagButton" class="btn btn-ghost">✕</button>
+                    </div>
+                </div>
+                <div style="margin-top:12px;">
+                    <div class="field-lbl">Notes (optional)</div>
+                    <textarea id="notesInput" rows="4" placeholder="Notes for this session..." style="margin-top:4px; resize:vertical;"></textarea>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+                    <button id="startButton" class="btn btn-start">▶ START</button>
+                    <button id="stopButton"  class="btn btn-stop">■ STOP</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -365,7 +380,7 @@
             <div class="card-title" style="margin-bottom:0;">File Collection QC — Sync Task Count</div>
             <button id="refreshQcBtn" class="btn btn-ghost" style="font-size:.7rem; padding:.3rem .7rem;">↻ Refresh</button>
         </div>
-        <div style="font-size:.72rem; color:var(--text-muted); margin-bottom:.75rem;">Counts completed sync tasks per block. Use this to match against APDM and other acquisition programs.</div>
+        <div style="font-size:.72rem; color:var(--text-muted); margin-bottom:.75rem;">Counts completed sync tasks per block. Use this to cross-check against APDM and other acquisition programs.</div>
         <div class="qc-grid" id="qcGrid"></div>
     </div>
 
@@ -413,6 +428,63 @@
         <div id="updrsResult">— min since last dose</div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
             <button id="confirmUpdrsButton" class="btn btn-blue">Log & Proceed</button>
+        </div>
+    </div>
+</div>
+
+<!-- DUPLICATE WARNING MODAL -->
+<div id="duplicateModal" class="modal-ov hidden">
+    <div class="modal-box">
+        <div class="modal-title">⚠️ Task Already Completed</div>
+        <p style="font-size:.85rem; margin:.5rem 0 .25rem;">This task already has a completed entry in the log:</p>
+        <div id="duplicateTaskName" style="font-family:'IBM Plex Mono'; font-size:.82rem; background:var(--red-lt); border:1px solid var(--red-bd); border-radius:5px; padding:.5rem .75rem; margin:.5rem 0;"></div>
+        <p style="font-size:.82rem; color:var(--text-muted);">Are you sure you want to record it again?</p>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+            <button id="cancelDuplicateBtn" class="btn btn-ghost">Cancel</button>
+            <button id="confirmDuplicateBtn" class="btn btn-red">Record Anyway</button>
+        </div>
+    </div>
+</div>
+
+<!-- SKIP WARNING MODAL -->
+<div id="skipModal" class="modal-ov hidden">
+    <div class="modal-box">
+        <div class="modal-title">⚠️ Out-of-Order Task</div>
+        <p style="font-size:.85rem; margin:.5rem 0 .25rem;">You're about to start:</p>
+        <div id="skipTaskName" style="font-family:'IBM Plex Mono'; font-size:.82rem; background:var(--orange-lt); border:1px solid var(--orange-bd); border-radius:5px; padding:.5rem .75rem; margin:.5rem 0;"></div>
+        <p style="font-size:.85rem; margin:.25rem 0 .25rem;">But the next expected task is:</p>
+        <div id="skipExpectedName" style="font-family:'IBM Plex Mono'; font-size:.82rem; background:var(--blue-lt); border:1px solid var(--blue-bd); border-radius:5px; padding:.5rem .75rem; margin:.5rem 0;"></div>
+        <p style="font-size:.82rem; color:var(--text-muted);">Continue anyway?</p>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+            <button id="cancelSkipBtn" class="btn btn-ghost">Cancel</button>
+            <button id="confirmSkipBtn" class="btn btn-orange">Continue Anyway</button>
+        </div>
+    </div>
+</div>
+
+<!-- EXPORT CHECKLIST MODAL -->
+<div id="checklistModal" class="modal-ov hidden">
+    <div class="modal-box" style="max-width:520px;">
+        <div class="modal-title">📋 Session Completion Checklist</div>
+        <p style="font-size:.82rem; color:var(--text-muted); margin-bottom:.85rem;">Review before exporting. Any incomplete blocks are flagged below.</p>
+        <div id="checklistBody" style="display:flex; flex-direction:column; gap:.4rem; margin-bottom:1rem;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+            <button id="cancelChecklistBtn" class="btn btn-ghost">Go Back</button>
+            <button id="confirmChecklistBtn" class="btn btn-teal">Export CSV Anyway</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT NOTE MODAL -->
+<div id="editNoteModal" class="modal-ov hidden">
+    <div class="modal-box">
+        <div class="modal-title">✏️ Edit Note for Entry</div>
+        <div id="editNoteTask" style="font-family:'IBM Plex Mono'; font-size:.8rem; color:var(--text-muted); margin-bottom:.75rem;"></div>
+        <div class="field-lbl">Note</div>
+        <textarea id="editNoteInput" rows="3" style="margin-top:4px;" placeholder="Add or edit note..."></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+            <button id="cancelEditNoteBtn" class="btn btn-ghost">Cancel</button>
+            <button id="confirmEditNoteBtn" class="btn btn-blue">Save Note</button>
         </div>
     </div>
 </div>
@@ -478,7 +550,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (['t2on','t3on'].includes(visit)) {
             steps.push({type:'header', label:'── Medication Intake & UPDRS'});
             steps.push({type:'item', label:'med-intake', isMedTimer:true, noSync:true});
-            steps.push({type:'item', label:'UPDRS-pre', modality:'clinical', noSync:true});
+            steps.push({type:'item', label:'updrs', modality:'clinical', noSync:true});
+        }
+
+        // === UPDRS (at start of t1on, t2off, t3off) ===
+        if (['t1on','t2off','t3off'].includes(visit)) {
+            steps.push({type:'header', label:'── UPDRS'});
+            steps.push({type:'item', label:'updrs', modality:'clinical', noSync:true});
         }
 
         // === GILADI PROTOCOL ===
@@ -551,8 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.dataset.modality     = step.modality || '';
 
                 let badge = '';
-                if (step.syncExpected) badge = '<span class="sync-badge">sync</span>';
-                if (step.isMedTimer)   badge = '<span class="sync-badge" style="background:var(--amber-lt);color:var(--amber);border-color:var(--orange-bd);">💊 bg-timer</span>';
+                if (step.isMedTimer) badge = '<span class="sync-badge" style="background:var(--amber-lt);color:var(--amber);border-color:var(--orange-bd);">💊 bg-timer</span>';
 
                 li.innerHTML = `<span>${step.label}</span>${badge}`;
                 li.addEventListener('click', handleClick);
@@ -697,16 +774,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isMedTimer) {
             startMedTimer();
-            // Mark as done, advance selection
             selectedEl.classList.add('done');
             advanceSelection();
             return;
         }
 
-        // UPDRS check: if label contains 'UPDRS' and we have a med intake time
+        // UPDRS check
         if (selectedEl.dataset.label.toLowerCase().includes('updrs') && medIngestionTime) {
             showUpdrsModal();
-            return;  // doStart() called from modal confirm
+            return;
+        }
+
+        // DUPLICATE CHECK: has this exact task already been fully logged (Start+Stop)?
+        const thisBids = stepBidsName({ label: selectedEl.dataset.label });
+        const alreadyDone = logData.some(e => e.bidsName === thisBids && e.event === 'Stop');
+        if (alreadyDone) {
+            $('duplicateTaskName').textContent = thisBids;
+            $('duplicateModal').classList.remove('hidden');
+            return;
+        }
+
+        // SKIP / OUT-OF-ORDER CHECK
+        const allItems = [...trialList.querySelectorAll('.trial-item:not(.section-header):not(.done)')];
+        if (allItems.length > 0 && allItems[0] !== selectedEl) {
+            const expectedLabel = allItems[0].dataset.label;
+            $('skipTaskName').textContent    = thisBids;
+            $('skipExpectedName').textContent = stepBidsName({ label: expectedLabel });
+            $('skipModal').classList.remove('hidden');
+            return;
         }
 
         doStart();
@@ -801,26 +896,42 @@ document.addEventListener('DOMContentLoaded', () => {
         renderLog();
     }
 
+    let editNoteIndex = null;
+
     function renderLog() {
         const logBody = $('logBody');
         logBody.innerHTML = '';
         $('emptyLogMessage').style.display = logData.length ? 'none' : 'block';
-        logData.forEach(e => {
+        logData.forEach((e, idx) => {
             const tr = document.createElement('tr');
-            const syncBadge = e.syncExpected ? '<span style="font-size:.6rem;background:var(--teal-lt);color:var(--teal);border:1px solid var(--teal-bd);border-radius:3px;padding:1px 4px;margin-left:4px;">sync</span>' : '';
+            tr.style.cursor = 'pointer';
+            tr.title = 'Click to edit note';
+            const flagBadge = e.flagged ? '<span style="font-size:.6rem;background:var(--orange-lt);color:var(--orange);border:1px solid var(--orange-bd);border-radius:3px;padding:1px 5px;margin-left:4px;">⚠ flagged</span>' : '';
+            const noteDisplay = e.notes
+                ? `<span style="color:var(--text-mid);">${e.notes}</span>`
+                : `<span style="color:#ccc; font-size:.68rem;">+ add note</span>`;
             tr.innerHTML = `
-                <td>${e.bidsName}${syncBadge}</td>
+                <td>${e.bidsName}${flagBadge}</td>
                 <td>${e.modality}</td>
                 <td>${e.session}</td>
                 <td>${e.event}</td>
-                <td>${e.notes}</td>
+                <td>${noteDisplay}</td>
                 <td>${e.timestamp}</td>
                 <td>${e.duration}</td>`;
+            tr.addEventListener('click', () => openEditNote(idx));
             logBody.appendChild(tr);
         });
-        // Auto-scroll to bottom
         const scroll = logBody.closest('.log-scroll');
         if (scroll) scroll.scrollTop = scroll.scrollHeight;
+        autoSave();
+    }
+
+    function openEditNote(idx) {
+        editNoteIndex = idx;
+        $('editNoteTask').textContent = `${logData[idx].bidsName} · ${logData[idx].event} · ${logData[idx].timestamp}`;
+        $('editNoteInput').value = logData[idx].notes || '';
+        $('editNoteModal').classList.remove('hidden');
+        setTimeout(() => $('editNoteInput').focus(), 50);
     }
 
     /* =====================================================================
@@ -968,9 +1079,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* =====================================================================
-       EXPORT
+       EXPORT — with pre-flight checklist
     ====================================================================== */
-    $('exportButton').addEventListener('click', () => {
+    function doExport() {
         let csv = "BIDS_Filename,Modality,Session,Event,Notes,Timestamp,Duration\n";
         logData.forEach(d => {
             csv += `"${d.bidsName}","${d.modality}","${d.session}","${d.event}","${d.notes}","${d.timestamp}","${d.duration}"\n`;
@@ -981,6 +1092,98 @@ document.addEventListener('DOMContentLoaded', () => {
         const sub = padSub(currentSubject);
         a.download = `AT-sub-${currentSite}${sub}_ses-${currentVisit}_synclog.csv`;
         a.click();
+    }
+
+    $('exportButton').addEventListener('click', () => {
+        // Build checklist
+        const stopEvents = logData.filter(e => e.event === 'Stop');
+        const body = $('checklistBody');
+        body.innerHTML = '';
+        let allOk = true;
+        QC_BLOCKS.forEach(block => {
+            const got = stopEvents.filter(e => block.tasks.some(t => e.bidsName.includes(`task-${t}`))).length;
+            const ok  = got >= block.expected;
+            if (!ok) allOk = false;
+            const div = document.createElement('div');
+            div.style.cssText = `display:flex;align-items:center;gap:.6rem;padding:.4rem .6rem;border-radius:5px;font-size:.82rem;background:${ok ? 'var(--green-lt)' : 'var(--red-lt)'};border:1px solid ${ok ? 'var(--green-bd)' : 'var(--red-bd)'};`;
+            div.innerHTML = `<span style="font-size:1rem;">${ok ? '✅' : '❌'}</span><span style="flex:1;">${block.label}</span><span style="font-family:'IBM Plex Mono';font-weight:600;">${got} / ${block.expected}</span>`;
+            body.appendChild(div);
+        });
+        if (allOk) {
+            // All complete — export directly
+            doExport();
+        } else {
+            $('checklistModal').classList.remove('hidden');
+        }
+    });
+
+    $('cancelChecklistBtn').addEventListener('click',  () => $('checklistModal').classList.add('hidden'));
+    $('confirmChecklistBtn').addEventListener('click', () => { $('checklistModal').classList.add('hidden'); doExport(); });
+
+    /* =====================================================================
+       AUTO-SAVE to localStorage
+    ====================================================================== */
+    const STORAGE_KEY = 'antifreeze_autosave';
+
+    function autoSave() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                logData, currentVisit, currentSite, currentSubject, currentMedState,
+                savedAt: new Date().toLocaleTimeString()
+            }));
+        } catch(e) { /* storage unavailable */ }
+    }
+
+    function tryRestore() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const saved = JSON.parse(raw);
+            if (!saved.logData || !saved.logData.length) return;
+            if (confirm(`Auto-save found from ${saved.savedAt} (${saved.logData.length} log entries). Restore session?`)) {
+                logData        = saved.logData;
+                currentVisit   = saved.currentVisit   || currentVisit;
+                currentSite    = saved.currentSite    || currentSite;
+                currentSubject = saved.currentSubject || currentSubject;
+                currentMedState= saved.currentMedState|| currentMedState;
+                // Restore UI
+                $('visitSelect').value  = currentVisit;
+                $('stateSelect').value  = currentMedState;
+                $('subjectInput').value = currentSubject;
+                document.querySelectorAll('.site-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.site === currentSite);
+                });
+                protocol = buildProtocol(currentVisit, currentMedState);
+                populateTrialList();
+                updateBidsUI();
+                renderLog();
+                refreshQC();
+            }
+        } catch(e) { /* ignore */ }
+    }
+
+    /* =====================================================================
+       MODAL LISTENERS — duplicate, skip, edit note
+    ====================================================================== */
+    $('cancelDuplicateBtn').addEventListener('click',  () => $('duplicateModal').classList.add('hidden'));
+    $('confirmDuplicateBtn').addEventListener('click', () => { $('duplicateModal').classList.add('hidden'); doStart(); });
+
+    $('cancelSkipBtn').addEventListener('click',  () => $('skipModal').classList.add('hidden'));
+    $('confirmSkipBtn').addEventListener('click', () => { $('skipModal').classList.add('hidden'); doStart(); });
+
+    $('cancelEditNoteBtn').addEventListener('click', () => $('editNoteModal').classList.add('hidden'));
+    $('confirmEditNoteBtn').addEventListener('click', () => {
+        if (editNoteIndex !== null) {
+            logData[editNoteIndex].notes = $('editNoteInput').value.trim();
+            renderLog();
+        }
+        $('editNoteModal').classList.add('hidden');
+    });
+
+    // Also clear autosave on reset
+    const origReset = $('confirmResetButton').onclick;
+    $('confirmResetButton').addEventListener('click', () => {
+        try { localStorage.removeItem('antifreeze_autosave'); } catch(e) {}
     });
 
     /* =====================================================================
@@ -1002,6 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateBidsUI();
     populateTrialList();
     updateUIStates();
+    tryRestore();
 
 }); // end DOMContentLoaded
 </script>
