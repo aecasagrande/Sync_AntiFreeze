@@ -473,11 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function buildProtocol(visit, medState) {
         const steps = [];
 
-        // === RESTING VITALS (no sync needed) ===
-        steps.push({type:'header', label:'── Resting Vitals (ECG/GSR · no sync)'});
-        steps.push({type:'item', label:'vitals-preIP',  noSync:true, modality:'ecg/gsr'});
-        steps.push({type:'item', label:'vitals-postIP', noSync:true, modality:'ecg/gsr'});
-        steps.push({type:'item', label:'vitals-on',     noSync:true, modality:'ecg/gsr'});
+        // Vitals removed — not needed in sync app
 
         // === MEDICATION INTAKE (if visit has OFF → ON transition) ===
         if (['t2off','t3off'].includes(visit)) {
@@ -798,7 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
             session:   `ses-${currentVisit}`,
             event:     obj.event,
             notes:     obj.notes || '',
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}),
             duration:  obj.duration != null ? obj.duration + 's' : '',
             syncExpected: obj.syncExpected || false,
         };
@@ -819,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${e.session}</td>
                 <td>${e.event}</td>
                 <td>${e.notes}</td>
-                <td>${e.timestamp.slice(11,19)}</td>
+                <td>${e.timestamp}</td>
                 <td>${e.duration}</td>`;
             logBody.appendChild(tr);
         });
@@ -834,7 +830,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Each block: human label + task names to match + expected count
     const QC_BLOCKS = [
-        { label: 'Resting Vitals',    tasks: ['vitals-preIP','vitals-postIP','vitals-on'],  expected: 3 },
         { label: 'Giladi Protocol',   tasks: GILADI_TASKS.map(g => g.label),               expected: 8 },
         { label: 'Continuous Walk',   tasks: ['st2mwalk','dt2mwalk'],                      expected: 2 },
         { label: 'Augmented Reality', tasks: AR_TASKS.map(a => a.label),                   expected: 6 },
