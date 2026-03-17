@@ -74,20 +74,21 @@
         .field-lbl { font-size: .72rem; font-weight: 500; color: var(--text-muted); margin-bottom: .3rem; text-transform: uppercase; letter-spacing: .05em; }
         .field-grp { display: flex; flex-direction: column; }
 
-        /* CONFIG GRID */
-        .config-grid { display: grid; grid-template-columns: auto 1fr 1fr 1.3fr 1fr; gap: .65rem; align-items: end; }
+        /* CONFIG GRID — site selector spans full width on top row */
+        .config-grid { display: flex; flex-direction: column; gap: .75rem; }
+        .config-row  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .65rem; align-items: end; }
 
         /* SITE SELECTOR */
-        .site-selector { display: flex; gap: 4px; }
+        .site-selector { display: flex; gap: 6px; }
         .site-btn {
-            display: flex; flex-direction: column; align-items: center; gap: 2px;
-            padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: var(--r-sm);
-            cursor: pointer; background: var(--white); transition: all .12s; font-size: .6rem;
-            color: var(--text-muted); font-family: 'IBM Plex Mono'; white-space: nowrap;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 6px 0; border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+            cursor: pointer; background: var(--white); transition: all .12s; font-size: .62rem;
+            color: var(--text-muted); font-family: 'IBM Plex Mono'; white-space: nowrap; flex: 1;
         }
         .site-btn:hover { border-color: var(--blue); color: var(--blue); }
         .site-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
-        .site-btn .flag { font-size: 1.2rem; line-height: 1; }
+        .site-btn .flag { font-size: 1.35rem; line-height: 1; }
 
         input[type=text], select, textarea {
             font-family: 'IBM Plex Sans', sans-serif; font-size: .85rem;
@@ -215,7 +216,7 @@
         <div class="card-title">Session Configuration</div>
         <div class="config-grid">
 
-            <!-- SITE SELECTOR -->
+            <!-- ROW 1: SITE SELECTOR (full width) -->
             <div class="field-grp">
                 <div class="field-lbl">Site</div>
                 <div class="site-selector" id="siteBtns">
@@ -234,42 +235,39 @@
                 </div>
             </div>
 
-            <!-- PARTICIPANT ID -->
-            <div class="field-grp">
-                <div class="field-lbl">Participant #</div>
-                <input type="text" id="subjectInput" placeholder="e.g. 01" maxlength="4" style="text-align:center; font-size:1rem; font-weight:600; font-family:'IBM Plex Mono';">
+            <!-- ROW 2: PARTICIPANT + VISIT + MED STATE -->
+            <div class="config-row">
+                <div class="field-grp">
+                    <div class="field-lbl">Participant #</div>
+                    <input type="text" id="subjectInput" placeholder="e.g. 01" maxlength="4" style="text-align:center; font-size:1rem; font-weight:600; font-family:'IBM Plex Mono';">
+                </div>
+                <div class="field-grp">
+                    <div class="field-lbl">Visit / Session</div>
+                    <select id="visitSelect">
+                        <option value="t1on">Visit 1 – ON (ses-t1on)</option>
+                        <option value="t2off">Visit 2 OFF (ses-t2off)</option>
+                        <option value="t2on">Visit 2 ON (ses-t2on)</option>
+                        <option value="t3off">Visit 3 OFF (ses-t3off)</option>
+                        <option value="t3on">Visit 3 ON (ses-t3on)</option>
+                    </select>
+                </div>
+                <div class="field-grp">
+                    <div class="field-lbl">Med State</div>
+                    <select id="stateSelect">
+                        <option value="on">ON Medication</option>
+                        <option value="off">OFF Medication</option>
+                    </select>
+                </div>
+                <!-- GROUP (FR always; NF commented out for potential future use)
+                <div class="field-grp">
+                    <div class="field-lbl">Group</div>
+                    <select id="groupSelect">
+                        <option value="FR">FR – Freezer</option>
+                        <!-- <option value="NF">NF – Non-Freezer</option> -->
+                    </select>
+                </div>
+                -->
             </div>
-
-            <!-- VISIT / SESSION -->
-            <div class="field-grp">
-                <div class="field-lbl">Visit / Session</div>
-                <select id="visitSelect">
-                    <option value="t1on">Visit 1 – ON (ses-t1on)</option>
-                    <option value="t2off">Visit 2 OFF (ses-t2off)</option>
-                    <option value="t2on">Visit 2 ON (ses-t2on)</option>
-                    <option value="t3off">Visit 3 OFF (ses-t3off)</option>
-                    <option value="t3on">Visit 3 ON (ses-t3on)</option>
-                </select>
-            </div>
-
-            <!-- MED STATE (auto from visit, but editable) -->
-            <div class="field-grp">
-                <div class="field-lbl">Med State</div>
-                <select id="stateSelect">
-                    <option value="on">ON Medication</option>
-                    <option value="off">OFF Medication</option>
-                </select>
-            </div>
-
-            <!-- GROUP (FR always; NF commented out for potential future use)
-            <div class="field-grp">
-                <div class="field-lbl">Group</div>
-                <select id="groupSelect">
-                    <option value="FR">FR – Freezer</option>
-                    <!-- <option value="NF">NF – Non-Freezer</option> -->
-                </select>
-            </div>
-            -->
 
         </div>
         <div class="bids-box">
@@ -843,7 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const QC_BLOCKS = [
         { label: 'Resting Vitals',    tasks: ['vitals-preIP','vitals-postIP','vitals-on'],  expected: 3 },
         { label: 'Giladi Protocol',   tasks: GILADI_TASKS.map(g => g.label),               expected: 8 },
-        { label: 'Continuous Walk',   tasks: CONT_WALK_TASKS.map(c => c.label),            expected: 6 },
+        { label: 'Continuous Walk',   tasks: ['st2mwalk','dt2mwalk'],                      expected: 2 },
         { label: 'Augmented Reality', tasks: AR_TASKS.map(a => a.label),                   expected: 6 },
     ];
 
