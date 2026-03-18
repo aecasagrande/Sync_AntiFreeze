@@ -113,7 +113,7 @@
         #countdownDisplay { font-family: 'IBM Plex Mono'; font-size: 1.2rem; color: var(--red); font-weight: 600; margin-top: 4px; }
  
         /* TRIAL CONTROL TWO-COLUMN LAYOUT */
-        .trial-body { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; margin-top: .75rem; align-items: start; }
+        .trial-body { display: grid; grid-template-columns: 1fr 280px; gap: 1rem; margin-top: .75rem; align-items: start; }
         .trial-controls { display: flex; flex-direction: column; }
  
         /* TRIAL LIST */
@@ -324,20 +324,25 @@
             <!-- LEFT: trial list -->
             <ul id="trialList"></ul>
             <!-- RIGHT: controls -->
-            <div class="trial-controls">
+<div class="trial-controls">
                 <div>
                     <div class="field-lbl">Custom Step</div>
-                    <div style="display:flex; gap:6px; margin-top:4px;">
-                        <input type="text" id="customTagInput" placeholder="Step name..." style="flex:1; min-width:0;">
-                        <button id="addTagButton" class="btn btn-blue">+ Add</button>
-                        <button id="removeTagButton" class="btn btn-ghost">✕</button>
+                    <div style="display:flex; gap:6px; margin-top:2px;">
+                        <input type="text" id="customTagInput" placeholder="Step name..." style="flex:1; min-width:0; padding: .3rem .5rem;">
+                        <button id="addTagButton" class="btn btn-blue" style="padding: .3rem .6rem;">+ Add</button>
+                        <button id="removeTagButton" class="btn btn-ghost" style="padding: .3rem .6rem;">✕</button>
                     </div>
                 </div>
-                <div style="margin-top:12px;">
+                
+                <div style="margin-top:8px;">
                     <div class="field-lbl">Notes (optional)</div>
-                    <textarea id="notesInput" rows="2" placeholder="Notes for this session..." style="margin-top:4px; resize:vertical;"></textarea>
+                    <textarea id="notesInput" rows="1" placeholder="Notes for this session..." style="margin-top:2px; resize:vertical; padding: .3rem .5rem;"></textarea>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
+                    <button id="startButton" class="btn btn-start" style="font-size:1.4rem; font-weight: 600; padding:1.5rem 0.5rem; border-radius: 8px;">▶ START</button>
+                    <button id="stopButton"  class="btn btn-stop"  style="font-size:1.4rem; font-weight: 600; padding:1.5rem 0.5rem; border-radius: 8px;">■ STOP</button>
+                </div>
+            </div>                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
                     <button id="startButton" class="btn btn-start" style="font-size:1.15rem; padding:1rem;">▶ START</button>
                     <button id="stopButton"  class="btn btn-stop"  style="font-size:1.15rem; padding:1rem;">■ STOP</button>
                 </div>
