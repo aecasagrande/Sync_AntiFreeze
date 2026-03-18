@@ -207,7 +207,7 @@
     <div class="app-header">
         <div>
             <div class="app-title">Sync_AntiFreeze</div>
-            <div class="app-sub">Clinical Session Sync · University of Waterloo · NeuroCog</div>
+            <div class="app-sub">Clinical Session Synchronisation · University of Waterloo</div>
         </div>
         <div class="header-right">
             <div id="realTimeClock">--:--:--</div>
@@ -294,7 +294,7 @@
     <!-- SPECIALIST TIMERS: MRI + PUPILS -->
     <div class="spec-timers">
         <div class="spec-timer-card mri" id="mriTimerCard">
-            <div class="spec-timer-label"> MRI Session</div>
+            <div class="spec-timer-label">🧲 MRI Session</div>
             <div class="spec-timer-display" id="mriTimerDisplay">--:--:--</div>
             <div class="spec-timer-btns">
                 <button class="spec-btn-start mri" id="mriStartBtn">▶ Start</button>
@@ -302,7 +302,7 @@
             </div>
         </div>
         <div class="spec-timer-card" id="pupilTimerCard">
-            <div class="spec-timer-label"> Pupil Session</div>
+            <div class="spec-timer-label">👁 Pupil Session</div>
             <div class="spec-timer-display" id="pupilTimerDisplay">--:--:--</div>
             <div class="spec-timer-btns">
                 <button class="spec-btn-start" id="pupilStartBtn">▶ Start</button>
@@ -681,12 +681,51 @@ document.addEventListener('DOMContentLoaded', () => {
         $('medTimerDisplay').textContent = fmtElapsed(elapsed);
     }
 
+    function playTone(freq, duration=0.12, volume=0.08) {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    function playChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            // Three ascending tones
+            const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
+                gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
+                gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + i * 0.18 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.5);
+                osc.start(ctx.currentTime + i * 0.18);
+                osc.stop(ctx.currentTime + i * 0.18 + 0.5);
+            });
+        } catch(e) { /* audio not available */ }
+    }
+
     function stopMedTimer() {
         if (!medTimerRunning) return;
         clearInterval(medTimerInterval);
         medTimerRunning = false;
         const elapsed = Math.floor((Date.now() - medTimerStart.getTime()) / 1000);
         $('medTimerBanner').classList.add('hidden');
+        playChime();
         logEntry({
             bidsName: stepBidsName({ label: 'med-intake' }),
             modality: '—',
@@ -809,6 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function doStart() {
+        playTone(440);  // soft A4 on start
         isTiming = true;
         startTimestamp = new Date();
         currentTrialName = stepBidsName({ label: selectedEl.dataset.label });
@@ -835,12 +875,13 @@ document.addEventListener('DOMContentLoaded', () => {
         timerInt = setInterval(() => {
             remaining--;
             $('countdownDisplay').textContent = remaining + "s";
-            if (remaining <= 0) { clearInterval(timerInt); handleStop(); }
+            if (remaining <= 0) { clearInterval(timerInt); playChime(); handleStop(); }
         }, 1000);
     }
 
     function handleStop() {
         if (!isTiming) return;
+        playTone(330);  // soft E4 on stop
         clearInterval(timerInt);
         isTiming = false;
         $('activeSelectionDisplay').classList.remove('timer-active');
