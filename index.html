@@ -698,25 +698,43 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {}
     }
 
-    function playChime() {
+    function playTune(notes) {
+        // notes: array of [freq, startOffset, duration, volume]
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            // Three ascending tones
-            const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
-            notes.forEach((freq, i) => {
-                const osc = ctx.createOscillator();
+            notes.forEach(([freq, offset, dur, vol]) => {
+                const osc  = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
-                gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
-                gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + i * 0.18 + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.5);
-                osc.start(ctx.currentTime + i * 0.18);
-                osc.stop(ctx.currentTime + i * 0.18 + 0.5);
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + offset);
+                gain.gain.setValueAtTime(0, ctx.currentTime + offset);
+                gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + offset + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + dur);
+                osc.start(ctx.currentTime + offset);
+                osc.stop(ctx.currentTime + offset + dur);
             });
-        } catch(e) { /* audio not available */ }
+        } catch(e) {}
+    }
+
+    // 2-minute walk done: short bright double-ding ✓✓
+    function playChime() {
+        playTune([
+            [880.00, 0.00, 0.18, 0.35],   // A5
+            [1046.50, 0.20, 0.18, 0.35],  // C6
+            [1318.51, 0.40, 0.40, 0.30],  // E6 — held
+        ]);
+    }
+
+    // 1-hour med period done: warm celebratory 4-note bell phrase
+    function playMedChime() {
+        playTune([
+            [523.25, 0.00, 0.25, 0.35],   // C5
+            [659.25, 0.28, 0.25, 0.35],   // E5
+            [783.99, 0.56, 0.25, 0.35],   // G5
+            [1046.50, 0.84, 0.55, 0.40],  // C6 — held finish
+        ]);
     }
 
     function stopMedTimer() {
@@ -725,7 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
         medTimerRunning = false;
         const elapsed = Math.floor((Date.now() - medTimerStart.getTime()) / 1000);
         $('medTimerBanner').classList.add('hidden');
-        playChime();
+        playMedChime();
         logEntry({
             bidsName: stepBidsName({ label: 'med-intake' }),
             modality: '—',
