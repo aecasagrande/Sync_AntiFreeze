@@ -117,13 +117,50 @@
         .trial-controls { display: flex; flex-direction: column; }
  
         /* TRIAL LIST */
-        #trialList { list-style: none; border: 1px solid var(--border); border-radius: var(--r-sm); max-height: 220px; overflow-y: auto; background: #fafbfd; }
-        .trial-item { padding: .28rem .9rem; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .45rem; font-family: 'IBM Plex Mono'; font-size: .75rem; }
+        #trialList { list-style: none; border: 1px solid var(--border); border-radius: var(--r-sm); max-height: 350px; overflow-y: auto; background: #fafbfd; }
+        
+        .trial-item { 
+            padding: .4rem .9rem; 
+            cursor: pointer; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            gap: .45rem; 
+            font-family: 'IBM Plex Mono'; 
+            font-size: .85rem; 
+        }
+        
         .trial-item:last-child { border-bottom: none; }
         .trial-item.selected { background: var(--blue); color: #fff; }
-        .trial-item.section-header { background: #eef1f7; font-size: .56rem; color: var(--text-muted); font-weight: 600; letter-spacing: .08em; cursor: default; padding: .22rem .9rem; text-transform: uppercase; }
+        
+        .trial-item.section-header { 
+            background: #eef1f7; 
+            font-size: .6rem; 
+            color: var(--text-muted); 
+            font-weight: 600; 
+            letter-spacing: .08em; 
+            cursor: default; 
+            padding: .3rem .9rem; 
+            text-transform: uppercase; 
+            text-align: center; 
+            justify-content: center;
+        }
+        
         .trial-item.done { opacity: .45; text-decoration: line-through; }
-        .trial-item .sync-badge { font-size: .55rem; background: var(--teal-lt); color: var(--teal); border: 1px solid var(--teal-bd); border-radius: 3px; padding: 1px 4px; margin-left: auto; white-space: nowrap; }
+        
+        .trial-item .sync-badge { 
+            position: absolute; 
+            right: 15px;
+            font-size: .55rem; 
+            background: var(--teal-lt); 
+            color: var(--teal); 
+            border: 1px solid var(--teal-bd); 
+            border-radius: 3px; 
+            padding: 1px 4px; 
+            white-space: nowrap; 
+        }
  
         /* BUTTONS */
         .btn { font-family: 'IBM Plex Mono'; font-size: .78rem; padding: .48rem .95rem; border-radius: var(--r-sm); cursor: pointer; border: 1px solid transparent; transition: all .12s; white-space: nowrap; }
@@ -203,7 +240,6 @@
 <body>
 <div class="container">
  
-    <!-- HEADER -->
     <div class="app-header">
         <div>
             <div class="app-title">Sync_AntiFreeze</div>
@@ -215,12 +251,10 @@
         </div>
     </div>
  
-    <!-- SESSION CONFIG CARD -->
     <div class="card">
         <div class="card-title">Session Configuration</div>
         <div class="config-grid">
  
-            <!-- ROW 1: SITE SELECTOR (full width) -->
             <div class="field-grp">
                 <div class="field-lbl">Site</div>
                 <div class="site-selector" id="siteBtns">
@@ -239,7 +273,6 @@
                 </div>
             </div>
  
-            <!-- ROW 2: PARTICIPANT + VISIT + MED STATE -->
             <div class="config-row">
                 <div class="field-grp">
                     <div class="field-lbl">Participant #</div>
@@ -262,15 +295,6 @@
                         <option value="off">OFF Medication</option>
                     </select>
                 </div>
-                <!-- GROUP (FR always; NF commented out for potential future use)
-                <div class="field-grp">
-                    <div class="field-lbl">Group</div>
-                    <select id="groupSelect">
-                        <option value="FR">FR – Freezer</option>
-                        <!-- <option value="NF">NF – Non-Freezer</option> -->
-                    </select>
-                </div>
-                -->
             </div>
  
         </div>
@@ -280,7 +304,6 @@
         </div>
     </div>
  
-    <!-- MED BACKGROUND TIMER BANNER (hidden until started) -->
     <div id="medTimerBanner" class="hidden">
         <div class="med-timer-icon">💊</div>
         <div class="med-timer-info">
@@ -291,7 +314,6 @@
         <button id="stopMedTimerBtn">■ End Med Period</button>
     </div>
  
-    <!-- SPECIALIST TIMERS: MRI + PUPILS -->
     <div class="spec-timers">
         <div class="spec-timer-card mri" id="mriTimerCard">
             <div class="spec-timer-label">🧲 MRI Session</div>
@@ -311,46 +333,37 @@
         </div>
     </div>
  
-    <!-- TRIAL CONTROL CARD -->
     <div class="card" style="overflow:hidden;">
-        <!-- CURRENTLY SELECTED — full width on top -->
         <div id="activeSelectionDisplay">
             <span id="selectionHeader" class="field-lbl">Currently Selected</span>
             <div id="activeSelectionText" class="mono" style="font-weight:600;">—</div>
             <div id="countdownDisplay" class="hidden"></div>
         </div>
-        <!-- TWO-COLUMN BODY -->
+        
         <div class="trial-body">
-            <!-- LEFT: trial list -->
             <ul id="trialList"></ul>
-            <!-- RIGHT: controls -->
-<div class="trial-controls">
+            
+            <div class="trial-controls">
                 <div>
                     <div class="field-lbl">Custom Step</div>
-                    <div style="display:flex; gap:6px; margin-top:2px;">
-                        <input type="text" id="customTagInput" placeholder="Step name..." style="flex:1; min-width:0; padding: .3rem .5rem;">
-                        <button id="addTagButton" class="btn btn-blue" style="padding: .3rem .6rem;">+ Add</button>
-                        <button id="removeTagButton" class="btn btn-ghost" style="padding: .3rem .6rem;">✕</button>
+                    <div style="display:flex; gap:6px; margin-top:4px;">
+                        <input type="text" id="customTagInput" placeholder="Step name..." style="flex:1; min-width:0; padding: .4rem;">
+                        <button id="addTagButton" class="btn btn-blue" style="padding: .4rem .7rem;">+ Add</button>
+                        <button id="removeTagButton" class="btn btn-ghost" style="padding: .4rem .7rem;">✕</button>
                     </div>
                 </div>
-                
-                <div style="margin-top:8px;">
+                <div style="margin-top:12px;">
                     <div class="field-lbl">Notes (optional)</div>
-                    <textarea id="notesInput" rows="1" placeholder="Notes for this session..." style="margin-top:2px; resize:vertical; padding: .3rem .5rem;"></textarea>
+                    <textarea id="notesInput" rows="2" placeholder="Notes for this session..." style="margin-top:4px; resize:vertical; padding: .4rem;"></textarea>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
-                    <button id="startButton" class="btn btn-start" style="font-size:1.4rem; font-weight: 600; padding:1.5rem 0.5rem; border-radius: 8px;">▶ START</button>
-                    <button id="stopButton"  class="btn btn-stop"  style="font-size:1.4rem; font-weight: 600; padding:1.5rem 0.5rem; border-radius: 8px;">■ STOP</button>
-                </div>
-            </div>                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-                    <button id="startButton" class="btn btn-start" style="font-size:1.15rem; padding:1rem;">▶ START</button>
-                    <button id="stopButton"  class="btn btn-stop"  style="font-size:1.15rem; padding:1rem;">■ STOP</button>
+                    <button id="startButton" class="btn btn-start" style="font-size:1.3rem; font-weight:600; padding:1.5rem 0.5rem; border-radius:8px;">▶ START</button>
+                    <button id="stopButton"  class="btn btn-stop"  style="font-size:1.3rem; font-weight:600; padding:1.5rem 0.5rem; border-radius:8px;">■ STOP</button>
                 </div>
             </div>
         </div>
     </div>
  
-    <!-- EVENT LOG -->
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
             <div class="card-title" style="margin-bottom:0;">Event Log</div>
@@ -379,7 +392,6 @@
         <p id="emptyLogMessage" style="text-align:center; padding:20px; color:#aaa; font-size:.8rem;">// log is empty</p>
     </div>
  
-    <!-- QC FILE CHECK -->
     <div class="card" id="qcPanel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: .5rem;">
             <div class="card-title" style="margin-bottom:0;">File Collection QC — Sync Task Count</div>
@@ -389,10 +401,7 @@
         <div class="qc-grid" id="qcGrid"></div>
     </div>
  
-</div><!-- /container -->
- 
-<!-- DISCARD MODAL -->
-<div id="discardModal" class="modal-ov hidden">
+</div><div id="discardModal" class="modal-ov hidden">
     <div class="modal-box">
         <div class="modal-title">Discard Last Entry?</div>
         <div id="discardTrialName" style="margin:10px 0; font-weight:bold; font-family:'IBM Plex Mono'; font-size:.85rem;"></div>
@@ -403,7 +412,6 @@
     </div>
 </div>
  
-<!-- RESET MODAL -->
 <div id="confirmationModal" class="modal-ov hidden">
     <div class="modal-box">
         <div class="modal-title">Reset Entire Log?</div>
@@ -415,7 +423,6 @@
     </div>
 </div>
  
-<!-- UPDRS AUTO-CALC MODAL -->
 <div id="updrsModal" class="modal-ov hidden">
     <div class="modal-box">
         <div class="modal-title">⚠️ UPDRS Starting – Calculate Time Since Dose</div>
@@ -437,7 +444,6 @@
     </div>
 </div>
  
-<!-- DUPLICATE WARNING MODAL -->
 <div id="duplicateModal" class="modal-ov hidden">
     <div class="modal-box">
         <div class="modal-title">⚠️ Task Already Completed</div>
@@ -451,7 +457,6 @@
     </div>
 </div>
  
-<!-- SKIP WARNING MODAL -->
 <div id="skipModal" class="modal-ov hidden">
     <div class="modal-box">
         <div class="modal-title">⚠️ Out-of-Order Task</div>
@@ -467,7 +472,6 @@
     </div>
 </div>
  
-<!-- EXPORT CHECKLIST MODAL -->
 <div id="checklistModal" class="modal-ov hidden">
     <div class="modal-box" style="max-width:520px;">
         <div class="modal-title">📋 Session Completion Checklist</div>
@@ -480,7 +484,6 @@
     </div>
 </div>
  
-<!-- EDIT NOTE MODAL -->
 <div id="editNoteModal" class="modal-ov hidden">
     <div class="modal-box">
         <div class="modal-title">✏️ Edit Note for Entry</div>
