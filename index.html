@@ -113,15 +113,15 @@
         #countdownDisplay { font-family: 'IBM Plex Mono'; font-size: 1.2rem; color: var(--red); font-weight: 600; margin-top: 4px; }
 
         /* TRIAL CONTROL TWO-COLUMN LAYOUT */
-        .trial-body { display: grid; grid-template-columns: 1fr 280px; gap: 1rem; margin-top: .75rem; align-items: start; }
+        .trial-body { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; margin-top: .75rem; align-items: start; }
         .trial-controls { display: flex; flex-direction: column; }
 
         /* TRIAL LIST */
-        #trialList { list-style: none; border: 1px solid var(--border); border-radius: var(--r-sm); max-height: 300px; overflow-y: auto; background: #fafbfd; }
-        .trial-item { padding: .44rem .9rem; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .45rem; font-family: 'IBM Plex Mono'; font-size: .8rem; }
+        #trialList { list-style: none; border: 1px solid var(--border); border-radius: var(--r-sm); max-height: 220px; overflow-y: auto; background: #fafbfd; }
+        .trial-item { padding: .28rem .9rem; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .45rem; font-family: 'IBM Plex Mono'; font-size: .75rem; }
         .trial-item:last-child { border-bottom: none; }
         .trial-item.selected { background: var(--blue); color: #fff; }
-        .trial-item.section-header { background: #eef1f7; font-size: .58rem; color: var(--text-muted); font-weight: 600; letter-spacing: .08em; cursor: default; padding: .35rem .9rem; text-transform: uppercase; }
+        .trial-item.section-header { background: #eef1f7; font-size: .56rem; color: var(--text-muted); font-weight: 600; letter-spacing: .08em; cursor: default; padding: .22rem .9rem; text-transform: uppercase; }
         .trial-item.done { opacity: .45; text-decoration: line-through; }
         .trial-item .sync-badge { font-size: .55rem; background: var(--teal-lt); color: var(--teal); border: 1px solid var(--teal-bd); border-radius: 3px; padding: 1px 4px; margin-left: auto; white-space: nowrap; }
 
@@ -338,8 +338,8 @@
                     <textarea id="notesInput" rows="4" placeholder="Notes for this session..." style="margin-top:4px; resize:vertical;"></textarea>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-                    <button id="startButton" class="btn btn-start">▶ START</button>
-                    <button id="stopButton"  class="btn btn-stop">■ STOP</button>
+                    <button id="startButton" class="btn btn-start" style="font-size:1.15rem; padding:1rem;">▶ START</button>
+                    <button id="stopButton"  class="btn btn-stop"  style="font-size:1.15rem; padding:1rem;">■ STOP</button>
                 </div>
             </div>
         </div>
