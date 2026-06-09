@@ -537,8 +537,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {label:'st2mwalk', dur:120}, {label:'dt2mwalk', dur:120}
     ];
     const AR_TASKS = [
-        {label:'arltfpwalk'}, {label:'arlt2mwalk'}, {label:'arhtfpwalk'},
-        {label:'arht2mwalk'}, {label:'arltturn'}, {label:'arhtturn'}
+        {label:'arltfpwalk'}, {label:'arlt2mwalk', dur: 120}, {label:'arhtfpwalk'},
+        {label:'arht2mwalk', dur: 120}, {label:'arltturn'}, {label:'arhtturn'}
     ];
 
     // Protocol builder — state-aware
@@ -589,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const padSub = s => (s || '').replace(/\D/g,'').padStart(2,'0').substring(0,4) || '??';
 
     function getBidsPrefix() {
-        return `AT-sub-${currentSite}${padSub(currentSubject)}_ses-${currentVisit}`;
+        return `AT-${currentSite}$-sub-${padSub(currentSubject)}_ses-${currentVisit}`;
     }
 
     // Full BIDS filename for a step
@@ -1148,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         const sub = padSub(currentSubject);
-        a.download = `AT-sub-${currentSite}${sub}_ses-${currentVisit}_synclog.csv`;
+        a.download = `AT-${currentSite}$-sub-{sub}_ses-${currentVisit}_synclog.csv`;
         a.click();
     }
 
