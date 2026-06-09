@@ -538,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ====================================================================== */
     const padSub = s => (s || '').replace(/\D/g,'').padStart(2,'0').substring(0,4) || '??';
     function getBidsPrefix() {
-        return `AT-${currentSite}$-sub-${padSub(currentSubject)}_ses-${currentVisit}`;
+        return `AT-${currentSite}-sub-${padSub(currentSubject)}_ses-${currentVisit}`;
     }
     // Full BIDS filename for a step
     function stepBidsName(step) {
