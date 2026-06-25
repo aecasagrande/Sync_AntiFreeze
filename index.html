@@ -537,8 +537,11 @@ document.addEventListener('DOMContentLoaded', () => {
        BIDS NAMING
     ====================================================================== */
     const padSub = s => (s || '').replace(/\D/g,'').padStart(2,'0').substring(0,4) || '??';
+    // Session token: split timepoint from med-state with a hyphen (t1on → t1-on, t2off → t2-off).
+    // Internal currentVisit stays as 't1on' so buildProtocol() / endsWith('on') logic is untouched.
+    const fmtSession = v => (v || '').replace(/(off|on)$/, '-$1');
     function getBidsPrefix() {
-        return `AT-${currentSite}-sub-${padSub(currentSubject)}_ses-${currentVisit}`;
+        return `AT-sub-${currentSite}${padSub(currentSubject)}_ses-${fmtSession(currentVisit)}`;
     }
     // Full BIDS filename for a step
     function stepBidsName(step) {
@@ -853,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const entry = {
             bidsName:  obj.bidsName || '—',
             modality:  obj.modality || '—',
-            session:   `ses-${currentVisit}`,
+            session:   `ses-${fmtSession(currentVisit)}`,
             event:     obj.event,
             notes:     obj.notes || '',
             timestamp: fmtDateTime(new Date()),
