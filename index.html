@@ -186,11 +186,11 @@
         .qc-count { font-size: .65rem; color: var(--text-muted); }
         /* UPDRS calc display */
         #updrsResult { font-family: 'IBM Plex Mono'; font-size: 1.3rem; font-weight: 700; color: var(--blue); text-align: center; padding: .75rem; background: var(--blue-lt); border-radius: var(--r-sm); margin-top: .75rem; }
-        /* AFFILIATION LOGO BAR */
-        .affil-bar { display:flex; justify-content:flex-end; align-items:center; gap:.5rem; margin-bottom:.65rem; flex-wrap:wrap; }
-        .logo-chip { display:inline-flex; align-items:center; justify-content:center; background:#fff; border:1px solid var(--border); border-radius:var(--r-sm); padding:5px 10px; box-shadow:var(--sh); }
-        .logo-chip img { display:block; height:28px; width:auto; }
-        .logo-chip.uw img { height:30px; }
+        /* AFFILIATION LOGO BAR — logos sit directly on the page background */
+        .affil-bar { display:flex; justify-content:flex-end; align-items:center; gap:.7rem; margin-bottom:.5rem; flex-wrap:wrap; }
+        .logo-chip { display:inline-flex; align-items:center; justify-content:center; }
+        .logo-chip img { display:block; height:30px; width:auto; }
+        .logo-chip.uw img { height:34px; }
     </style>
 </head>
 <body>
@@ -851,6 +851,19 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUIStates();
         refreshQC();
     }
+    // Keep the highlighted trial item visible inside the scrolling list (esp. as the protocol rolls down).
+    // Scrolls only the #trialList container — never the page.
+    function scrollSelectedIntoView() {
+        if (!selectedEl) return;
+        const pad = 8;
+        const cr = trialList.getBoundingClientRect();
+        const er = selectedEl.getBoundingClientRect();
+        if (er.top < cr.top + pad) {
+            trialList.scrollTop -= (cr.top + pad - er.top);
+        } else if (er.bottom > cr.bottom - pad) {
+            trialList.scrollTop += (er.bottom - (cr.bottom - pad));
+        }
+    }
     function advanceSelection() {
         // Auto-select next non-header non-done item
         const items = [...trialList.querySelectorAll('.trial-item:not(.section-header):not(.done)')];
@@ -859,6 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedEl = items[0];
             selectedEl.classList.add('selected');
             updateActiveDisplay();
+            scrollSelectedIntoView();
         }
     }
     function updateUIStates() {
@@ -1036,8 +1050,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedEl = match;
                 selectedEl.classList.add('selected');
                 updateActiveDisplay();
-                // Scroll it into view
-                selectedEl.scrollIntoView({ block: 'nearest' });
+                // Scroll it into view within the list
+                scrollSelectedIntoView();
             }
         }
     });
